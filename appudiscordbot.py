@@ -19,9 +19,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from discord.ext import commands
 
-client = discord.Client()
-bot = commands.Bot(command_prefix='?', description='test')
-
 blacklist = []
 animeKeyWords = {}
 mangaKeyWords = {}
@@ -62,16 +59,6 @@ async def settings(ctx):
 @bot.command(pass_context=True)
 async def commands(ctx):
     await bot.say(ctx.message.author.mention +  '```Bot commands:\n\nstop - Stop sending all notifications. \n\nstart - If stopped, resume notifier. \n\n! - Get bot info and current settings. \n\nsettings: <subreddit1>, <subreddit2>, ... - Set the settings file. Ex: settings: anime, manga \n\nlist - Get current keywords list. \n\nadd: <subreddit> ---- name = kw1, kw2, ... - Add keywords for the specified sub to the list. Ex: add: anime ---- Steins;Gate = steins;gate, s;g, okabe, kurisu \n\nremove: <subreddit> ---- name - Remove keywords for the specified sub from the list. Ex: remove: anime ---- Hunter x Hunter```')
-
-@client.event
-@bot.command()
-async def add(left : int, right : int):
-    """Adds two numbers together."""
-    await bot.say(left + right)
-
-@bot.command(name='info')
-async def info():
-    await bot.say('info')
 
 @bot.event
 async def on_message(message):
@@ -118,7 +105,6 @@ def currentRun():
     msg += '\n\n' + 'Available settings: anime, questions, manga, steinsgate```'
     info = 'Bot is running'
     return msg
-    #redditor.message('%s' % info, msg)
 
 def changeSettings(word):
     try:
@@ -216,7 +202,6 @@ def removeKeyWords(word):
 
 hits = 0
 allcheckcount = 0
-#clearLog()
 
 @bot.event
 async def on_ready():
@@ -239,8 +224,11 @@ async def on_ready():
             str1 = '+'
             checkFile = open('checked.txt', 'r+')
             checked = checkFile.read().strip().split(',')
+            #print(checked)
+            print('checked: ' + str(len(checked)))
             if len(checked) >= 80:
                 checked = checked[40:]
+                checkFile.truncate()
                 for i in checked:
                     checkFile.write(i + ',')
             checkFile.close()
@@ -317,6 +305,10 @@ async def on_ready():
                 time.sleep(10)
                 break
             settings.close()
+            allcheckFile = open('allcheck.txt', 'r+')
+            allcheck = allcheckFile.read().strip().split('.')
+            checkFile = open('checked.txt', 'r+')
+            checked = checkFile.read().strip().split(',')
             if 'anime' in f:
                 errorCatch = '/r/anime'
                 subreddit = r.subreddit('anime')
@@ -331,8 +323,6 @@ async def on_ready():
                             allcheck.append(submission.id)
                             allcheckcount += 1
                     blacklist_words = any(string in op_title for string in blacklist)
-                    checkFile = open('checked.txt', 'r+')
-                    checked = checkFile.read().strip().split(',')
                     if blacklist_words and submission.id not in checked:
                         checked.append(submission.id)
                     for anime in animeKeyWords.items():
@@ -345,8 +335,7 @@ async def on_ready():
                             #redditor.message('%s' % info, msg)
                             checked.append(submission.id)
                             hits += 1
-                    checkFile.close()
-                await asyncio.sleep(4)
+                await asyncio.sleep(1)
             if 'manga' in f:
                 errorCatch = '/r/manga'
                 subreddit = r.subreddit('manga')
@@ -361,8 +350,6 @@ async def on_ready():
                             allcheck.append(submission.id)
                             allcheckcount += 1
                     blacklist_words = any(string in op_title for string in blacklist)
-                    checkFile = open('checked.txt', 'r+')
-                    checked = checkFile.read().strip().split(',')
                     if blacklist_words and submission.id not in checked:
                         checked.append(submission.id)
                     for manga in mangaKeyWords.items():
@@ -373,8 +360,16 @@ async def on_ready():
                             #redditor.message('%s' % info, msg)
                             checked.append(submission.id)
                             hits += 1
-                    checkFile.close()
-                await asyncio.sleep(4)
+                await asyncio.sleep(1)
+            allcheckFile.truncate()
+            print('allcheck: ' + str(len(checked)))
+            for i in allcheck:
+                allcheckFile.write(i + ',')
+            allcheckFile.close()
+            checkFile.truncate()
+            for i in checked:
+                checkFile.write(i + ',')
+            checkFile.close()
             if loopCount > 10:
                 failCount = 0
         # except Exception as e:
