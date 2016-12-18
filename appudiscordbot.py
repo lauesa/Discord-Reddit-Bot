@@ -18,6 +18,13 @@ import math
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from discord.ext import commands
+<<<<<<< HEAD
+=======
+
+client = discord.Client()
+bot = commands.Bot(command_prefix='?', description='test')
+
+>>>>>>> 0d3ef31e625459f603a5072a4f358863c3a92e96
 blacklist = []
 animeKeyWords = {}
 mangaKeyWords = {}
@@ -30,6 +37,7 @@ allcheckcount = 0
 hits = 0
 failCount = 0
 
+<<<<<<< HEAD
 
 client = discord.Client()
 bot = commands.Bot(command_prefix='ap:', description='test')
@@ -61,6 +69,18 @@ async def commands(ctx):
     await bot.say(ctx.message.author.mention +  '```Bot commands:\n\nstop - Stop sending all notifications. \n\nstart - If stopped, resume notifier. \n\n! - Get bot info and current settings. \n\nsettings: <subreddit1>, <subreddit2>, ... - Set the settings file. Ex: settings: anime, manga \n\nlist - Get current keywords list. \n\nadd: <subreddit> ---- name = kw1, kw2, ... - Add keywords for the specified sub to the list. Ex: add: anime ---- Steins;Gate = steins;gate, s;g, okabe, kurisu \n\nremove: <subreddit> ---- name - Remove keywords for the specified sub from the list. Ex: remove: anime ---- Hunter x Hunter```')
 
 @client.event
+=======
+@bot.command()
+async def add(left : int, right : int):
+    """Adds two numbers together."""
+    await bot.say(left + right)
+
+@bot.command(name='info')
+async def info():
+    await bot.say('info')
+
+@bot.event
+>>>>>>> 0d3ef31e625459f603a5072a4f358863c3a92e96
 async def on_message(message):
     if message.content.lower().startswith('test'):
         tag = message.content.split('test', 1)[1].strip()
@@ -201,6 +221,13 @@ def removeKeyWords(word):
         listKeyWords('Keyword removal failed. Syntax error/word not found for: `%s` Error thrown: `%s`\n\n' % (word, e))
         afds.close()
 
+<<<<<<< HEAD
+=======
+hits = 0
+allcheckcount = 0
+#clearLog()
+
+>>>>>>> 0d3ef31e625459f603a5072a4f358863c3a92e96
 @bot.event
 async def on_ready():
     while True:
@@ -327,6 +354,7 @@ async def on_ready():
                             await bot.send_message(discord.Object(id='259921092586504202'), msg)
                             #redditor.message('%s' % info, msg)
                             checked.append(submission.id)
+<<<<<<< HEAD
                             hits += 1
                     checkFile.close()
                 await asyncio.sleep(4)
@@ -396,5 +424,101 @@ async def on_ready():
         #             failCount += 1
         #             #logger('--------CRASHED--------\n')
         #             #logger('Crashed at exception handler. Error: %s %s\n' % (f, failCount))
+=======
+                        for anime in animeKeyWords.items():
+                            print('test')
+                            key_words = any(string in op_title for string in anime[1])
+                            if submission.id not in checked and key_words:
+                                msg = '%s related thread: %s in %s' % (anime[0], submission.shortlink, errorCatch)
+                                info = (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title
+                                #stuff = discord.Server()
+                                print('testasdf')
+                                #await bot.send_message(discord.Object(id='259921092586504202'), msg)
+                                #redditor.message('%s' % info, msg)
+                                checked.append(submission.id)
+                                hits += 1
+                    await asyncio.sleep(4)
+                if 'manga' in f:
+                    errorCatch = '/r/manga'
+                    subreddit = r.subreddit('manga')
+                    for submission in subreddit.new(limit=8):
+                        op_title = submission.title.lower()
+                        if submission.id not in allcheck:
+                            if len(allcheck) == 40 and 'manga' in f:
+                                allcheck = [allcheck[-1]] + allcheck[:-1]
+                                allcheck[0] = submission.id
+                                #allcheckcount += 1
+                            if len(allcheck) != 40 and 'manga' in f:
+                                allcheck.append(submission.id)
+                                #allcheckcount += 1
+                        blacklist_words = any(string in op_title for string in blacklist)
+                        if blacklist_words and submission.id not in checked:
+                            checked.append(submission.id)
+                        for manga in mangaKeyWords.items():
+                            key_words = any(string in op_title for string in manga[1])
+                            if submission.id not in checked and key_words:
+                                msg = '[%s related thread](%s) in %s' % (manga[0], submission.shortlink, errorCatch)
+                                info = (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title
+                                #redditor.message('%s' % info, msg)
+                                checked.append(submission.id)
+                                hits += 1
+                    await asyncio.sleep(4)
+                settings = open('settings.txt', 'rwb+')
+                f = settings.read()
+                settings.seek(0, 2)
+                if f[-1:] == '!':
+                    size = settings.tell()
+                    settings.truncate(size-1)
+                    currentRun()
+                settings.close()
+                if loopCount > 10:
+                    failCount = 0
+        except Exception as e:
+            try:
+                settings = open('settings.txt', 'rwb+')
+                f = settings.read()
+                settings.seek(0, 2)
+                if f[-1:] == '!':
+                    size = settings.tell()
+                    settings.truncate(size-1)
+                    msg = 'Recent fail count: %s [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)' % (failCount+1)
+                    info = 'Bot on exception'
+                    #redditor.message('%s' % info, msg)
+                settings.close()
+                if failCount <= 4:
+                    failCount += 1
+                    try:
+                        #traceback.print_exc()
+                        time.sleep(5)
+                        #redditor.message('Bot crashed', 'Failed at loop %d in %s block. Error: `%s` Attempting to restart in 2 minutes. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)' % (loopCount, errorCatch, str(e)))
+                        #logger('--------CRASHED--------\n')
+                        #logger('Crashed during loop. Sent Reddit message. Attempting to restart in 2 minutes. Error: %s %s\n' % (str(e), failCount))
+                        time.sleep(120)
+                    except Exception as g:
+                        pass
+                        #sendEmail(300, 'Bot crashed', 'Restarting postponed 5 minutes. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
+                        #logger('--------CRASHED--------\n')
+                        #logger('Crashed trying to send exception message. Sent email. Attempting to restart in 30 minutes. Error: %s\n' % str(g))
+                else:
+                    failCount += 1
+                    try:
+                        pass
+                        #redditor.message('Bot has crashed too many times', 'Restarting postponed for 30 mins. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
+                    except:
+                        pass
+                    #sendEmail(1800, 'Bot crashed too many times', 'Restarting postponed 30 minutes. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
+                    #logger('--------CRASHED--------\n')
+                    #logger('Crashing during loop too much. Sent Reddit message and email. Attempting to restart in 30 minutes. Error: %s\n' % str(e))
+                    failCount = 0
+            except Exception as f:
+                if failCount > 4:
+                    #logger('######## Crashing too much, sleeping for 5 minutes. ########\n\n')
+                    failCount = 0
+                    time.sleep(300)
+                else:
+                    failCount += 1
+                    #logger('--------CRASHED--------\n')
+                    #logger('Crashed at exception handler. Error: %s %s\n' % (f, failCount))
+>>>>>>> 0d3ef31e625459f603a5072a4f358863c3a92e96
 
 bot.run('MjU5OTE3Njk0MzE5NDYwMzUy.Cze6TQ.00RvXhRokiMeuBKRF7qzjnolRj0')
