@@ -2,6 +2,7 @@
 recommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions
 
 ----Anime----
+hello = a, e, i, o, u
 Steins;Gate = steins;gate, stiens;gate, s;g, steins, stiens, steins gate, stiens gate, steinsgate, stiensgate, stein's gate, stien's gate, stein's;gate, stien's;gate, stein'sgate, stien'sgate, steyns;gate, stayns;gate, steyns gate, stayns gate, steynsgate, staynsgate, okabe, kurisu, makise, mayuri, steins;gate0, stiens;gate0, steinsgate0, stiensgate0
 Madoka Magica = madoka, madoko, modoka, modoko, madaka, homura
 Kaguya Wants to be Confessed To = kaguya wants to be, kagaya wants to be, kuguya wants to be, kaguya want to be
