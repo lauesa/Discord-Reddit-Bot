@@ -2,6 +2,7 @@ import random
 import sys
 import os
 import json
+from discord.ext import commands
 import discord
 import re
 import urllib.request
@@ -14,11 +15,11 @@ client = discord.Client()
 async def on_message(message):
     if message.content.startswith('test'):
         tag = message.content.split('test', 1)[1].strip()
-        with urllib.request.urlopen("http://gelbooru.com/index.php?page=dapi&s=post&q=index&limit=100&tags=" + tag.replace(" ", "_")) as response:
-            match = response.read()
-        matches = re.findall(re.escape('file_url="') + '(.*?)' + re.escape('" '), str(match))
-        rand = random.randrange(0, len(matches))
-        await client.send_message(message.channel, matches[rand])
+        #with urllib.request.urlopen("http://gelbooru.com/index.php?page=dapi&s=post&q=index&limit=100&tags=" + tag.replace(" ", "_")) as response:
+            #match = response.read()
+        #matches = re.findall(re.escape('file_url="') + '(.*?)' + re.escape('" '), str(match))
+        #rand = random.randrange(0, len(matches))
+        await client.send_message(message.channel, message.author.mention)
 
 @client.event
 async def on_ready():
