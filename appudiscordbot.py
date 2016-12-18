@@ -20,7 +20,7 @@ from email.mime.text import MIMEText
 from discord.ext import commands
 
 client = discord.Client()
-bot = commands.Bot(command_prefix='?', description='test')
+bot = commands.Bot(command_prefix='ap:', description='test')
 
 blacklist = []
 animeKeyWords = {}
@@ -35,7 +35,11 @@ async def add(left : int, right : int):
     """Adds two numbers together."""
     await bot.say(left + right)
 
-@client.event
+@bot.command(name='info')
+async def info():
+    await bot.say('info')
+
+@bot.event
 async def on_message(message):
     if message.content.lower().startswith('test'):
         tag = message.content.split('test', 1)[1].strip()
