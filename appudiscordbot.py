@@ -35,11 +35,7 @@ async def add(left : int, right : int):
     """Adds two numbers together."""
     await bot.say(left + right)
 
-@bot.command(name='info')
-async def info():
-    await bot.say('info')
-
-@bot.event
+@client.event
 async def on_message(message):
     if message.content.lower().startswith('test'):
         tag = message.content.split('test', 1)[1].strip()
