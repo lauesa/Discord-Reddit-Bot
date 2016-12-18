@@ -20,7 +20,7 @@ from email.mime.text import MIMEText
 from discord.ext import commands
 
 client = discord.Client()
-bot = commands.Bot(command_prefix='ap:', description='test')
+bot = commands.Bot(command_prefix='?', description='test')
 
 blacklist = []
 animeKeyWords = {}
