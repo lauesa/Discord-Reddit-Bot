@@ -17,8 +17,10 @@ import smtplib
 import math
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from discord.ext import commands
 
 client = discord.Client()
+bot = commands.Bot(command_prefix='?', description='test')
 
 blacklist = []
 animeKeyWords = {}
@@ -27,6 +29,11 @@ loopCount = 0
 allcheckcount = 0
 hits = 0
 failCount = 0
+
+@bot.command()
+async def add(left : int, right : int):
+    """Adds two numbers together."""
+    await bot.say(left + right)
 
 @client.event
 async def on_message(message):
@@ -173,7 +180,7 @@ hits = 0
 allcheckcount = 0
 #clearLog()
 
-@client.event
+@bot.event
 async def on_ready():
     while True:
         failCount = 0
@@ -285,18 +292,18 @@ async def on_ready():
                         if blacklist_words and submission.id not in checked:
                             checked.append(submission.id)
                         for anime in animeKeyWords.items():
-                            #print('test')
+                            print('test')
                             key_words = any(string in op_title for string in anime[1])
                             if submission.id not in checked and key_words:
                                 msg = '%s related thread: %s in %s' % (anime[0], submission.shortlink, errorCatch)
                                 info = (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title
                                 #stuff = discord.Server()
-                                #print('testasdf')
-                                await client.send_message(discord.Object(id='259921092586504202'), msg)
+                                print('testasdf')
+                                #await bot.send_message(discord.Object(id='259921092586504202'), msg)
                                 #redditor.message('%s' % info, msg)
                                 checked.append(submission.id)
                                 hits += 1
-                    await time.sleep(4)
+                    await asyncio.sleep(4)
                 if 'manga' in f:
                     errorCatch = '/r/manga'
                     subreddit = r.subreddit('manga')
@@ -321,7 +328,7 @@ async def on_ready():
                                 #redditor.message('%s' % info, msg)
                                 checked.append(submission.id)
                                 hits += 1
-                    await time.sleep(4)
+                    await asyncio.sleep(4)
                 settings = open('settings.txt', 'rwb+')
                 f = settings.read()
                 settings.seek(0, 2)
@@ -379,4 +386,4 @@ async def on_ready():
                     #logger('--------CRASHED--------\n')
                     #logger('Crashed at exception handler. Error: %s %s\n' % (f, failCount))
 
-client.run('MjU5OTE3Njk0MzE5NDYwMzUy.Cze6TQ.00RvXhRokiMeuBKRF7qzjnolRj0')
+bot.run('MjU5OTE3Njk0MzE5NDYwMzUy.Cze6TQ.00RvXhRokiMeuBKRF7qzjnolRj0')
