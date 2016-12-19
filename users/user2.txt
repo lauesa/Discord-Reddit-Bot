@@ -1,0 +1,11 @@
+draco
+----Blacklist----
+recommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions
+
+----Anime----
+hello = a, e, i, o, u
+
+----Manga----
+Kaguya Wants to be Confessed To = kaguya wants to be, kagaya wants to be, kuguya wants to be, kaguya want to be
+
+----End----

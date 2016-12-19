@@ -119,19 +119,20 @@ async def on_ready():
 
             str1 = '+'
             currentRun(allcheckcount, hits, loopCount)
-            print(checked)
             @bot.command(pass_context=True)
             async def info(ctx):
                 await bot.say(ctx.message.author.mention + currentRun(allcheckcount, hits, loopCount))
             if len(checked) >= 80:
                 checked = checked[40:]
-            for users in os.listdir('users'):
-                with open(users, 'r') as stuff:
+            for users in os.listdir('users/'):
+                print(users)
+                with open('C:/Users/Deepak/Desktop/pyscripts/discordbot/users/%s' % users, 'r') as stuff:
+                    str1 = stuff.readline()
+                    if '----disable----' in str1:
+                        continue
+                    print(str1)
+                    currUser = str1.strip()
                     while str1 != '':
-                        str1 = stuff.readline()
-                        if '----disable----' in str1:
-                            break
-                        currUser = str1.strip()
                         str1 = stuff.readline()
                         if '----Blacklist----' in str1:
                             str1 = stuff.readline()
@@ -216,8 +217,8 @@ async def on_ready():
                         blacklist_words = any(string in op_title for string in blacklist)
                         if blacklist_words and submission.id not in checked:
                             checked.append(submission.id)
-                        for eachUser in userFollows:
-                            print(eachUser)
+                        for eachUser in userFollows.items():
+                            #print(eachUser[0])
                             for anime in animeKeyWords.items():
                                 key_words = any(string in op_title for string in anime[1])
                                 if submission.id not in checked and key_words:
