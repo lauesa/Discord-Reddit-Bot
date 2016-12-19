@@ -82,7 +82,7 @@ async def list(ctx):
 @bot.command(pass_context=True)
 async def add(ctx):
     toFollow = ctx.message.content
-    msg = ctx.message.author.mention + '**Error** Something went wrong. Are you using the command right? Example use: ``ap:add anime One Punch Man S2 - opm s2, opm season 2, one punch man season 2``'
+    msg = ctx.message.author.mention + '**Error** Something went wrong. Are you using the command right? Example use: ``ap:add anime One Punch Man S2 = opm s2, opm season 2, one punch man season 2``'
     try:
         toFollow = ctx.message.content.split('ap:add')[1].strip()
         if addKeyWords(toFollow, ctx.message.author.id) is True:
@@ -109,7 +109,7 @@ async def settings(ctx):
     await bot.say(ctx.message.author.mention + ' settings')
 @bot.command(pass_context=True)
 async def commands(ctx):
-    await bot.say(ctx.message.author.mention +  '\n**Bot commands:**\n\n``ap:info`` - Get bot info and current settings. \n\n``ap:settings <subreddit1>, <subreddit2>, ...`` - [WORK IN PROGRESS] Set the settings file. Ex: ``ap:settings anime, manga`` \n\n``ap:list`` - Get current keywords list. \n\n``ap:add <subreddit> name = kw1, kw2, ...`` - Add keywords for the specified sub to the list. Ex: ``ap:add anime Steins;Gate = steins;gate, s;g, okabe, kurisu`` \n\n``ap:remove <subreddit> name`` - Remove keywords for the specified sub from the list. Ex: ``ap:remove anime Hunter x Hunter``')
+    await bot.say(ctx.message.author.mention +  '\n**Bot commands:**\n\n``ap:follow`` - Subscribe to the bot. This means you can start adding and removing manga and anime.\n\n``ap:unfollow`` - Unsubscribe from the bot. You will not receive any more notifications. Warning: this deletes your list.\n\n``ap:info`` - Get bot info and current settings. \n\n``ap:settings <subreddit1>, <subreddit2>, ...`` - [WORK IN PROGRESS] Set the settings file. Ex: ``ap:settings anime, manga`` \n\n``ap:list`` - Get current keywords list. \n\n``ap:add <subreddit> name = kw1, kw2, ...`` - Add keywords for the specified sub to the list. Ex: ``ap:add anime Steins;Gate = steins;gate, s;g, okabe, kurisu`` \n\n``ap:remove <subreddit> name`` - Remove keywords for the specified sub from the list. Ex: ``ap:remove anime Hunter x Hunter``')
 
 # @client.event
 # async def on_message(message):
@@ -150,7 +150,7 @@ def currentRun(allcheck, hits, loops):
     currRun = '```Bot has been running for: %s days, %s hours, %s minutes, and %s seconds\n\nLinks checked: %s\nHits: %s\nItterations without fail: %s\nCurrent settings:\n' % (int(days), int(hours), int(minutes), int(seconds), allcheck, hits, loops)
     for i in temp:
         currRun += '    ' + i
-    currRun += '\n\n' + 'Available settings: anime, questions, manga, steinsgate```'
+    currRun += '\n\n' + 'Available settings: anime, manga```'
     info = 'Bot is running'
     return currRun
 
@@ -273,15 +273,11 @@ async def on_ready():
 
                 str1 = '+'
                 currentRun(allcheckcount, hits, loopCount)
-                # @bot.command(pass_context=True)
-                # async def info(ctx):
-                #     await bot.say(ctx.message.author.mention + currentRun(allcheckcount, hits, loopCount))
                 if len(checked) >= 80:
                     checked = checked[40:]
                 for users in os.listdir('users'):
                     if users == 'allusers.txt':
                         continue
-                    print(users)
                     with open('%susers/%s' % (path, users), 'r') as stuff:
                         str1 = stuff.readline()
                         if '----disable----' in str1:
@@ -361,7 +357,7 @@ async def on_ready():
                             temp = await bot.get_user_info(i)
                             allmentions += temp.mention + ' '
                         if msg != '':
-                            await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
+                            await bot.send_message(discord.Object(id='260318513153966081'), allmentions + msg)
                             checked.append(submission.id)
                     await asyncio.sleep(1)
                 msg = ''
