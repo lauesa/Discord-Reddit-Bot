@@ -30,9 +30,10 @@ bot = commands.Bot(command_prefix='ap:', description='test')
 # async def add(left : int, right : int):
 #     """Adds two numbers together."""
 #     await bot.say(left + right)
-# @bot.command(pass_context=True)
-# async def list(ctx):
-#     await bot.say(ctx.message.author.mention + ' list')
+@bot.command(pass_context=True)
+async def follow(ctx):
+
+    await bot.say(ctx.message.author.mention + ' You are no subscribed to the manga/anime notifier feed. Use ``ap:add`` to add the manga and anime you want to follow. See ``ap:commands`` for help.')
 
 @bot.command(pass_context=True)
 async def list(ctx):
@@ -82,6 +83,19 @@ start_time = time.time()
 failCount = 0
 tz = pytz.timezone('US/Eastern')
 
+def currentRun(allcheck, hits, loops):
+    seconds = time.time() - start_time
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+    temp = open('settings.txt', 'r').readlines()
+    currRun = '```Bot has been running for: %s days, %s hours, %s minutes, and %s seconds\n\nLinks checked: %s\nHits: %s\nItterations without fail: %s\nCurrent settings:\n' % (int(days), int(hours), int(minutes), int(seconds), allcheck, hits, loops)
+    for i in temp:
+        currRun += '    ' + i
+    currRun += '\n\n' + 'Available settings: anime, questions, manga, steinsgate```'
+    info = 'Bot is running'
+    return currRun
+
 @bot.event
 async def on_ready():
     allcheck = []
@@ -89,6 +103,7 @@ async def on_ready():
     allcheckcount = 0
     checked = []
     hits = 0
+    userFollows = {}
     while True:
         failCount = 0
         #try:
@@ -110,127 +125,135 @@ async def on_ready():
                 await bot.say(ctx.message.author.mention + currentRun(allcheckcount, hits, loopCount))
             if len(checked) >= 80:
                 checked = checked[40:]
-            with open('keywords.txt', 'r') as stuff:
-                while str1 != '':
-                    str1 = stuff.readline()
-                    if '----Blacklist----' in str1:
+            for users in os.listdir('users'):
+                with open(users, 'r') as stuff:
+                    while str1 != '':
                         str1 = stuff.readline()
-                        if ', ' in str1:
-                            lstr2 = str1.strip().split(', ')
-                            for word in lstr2:
-                                blacklist.append(word)
-                        else:
-                            blacklist.append(str1.strip())
-                    if '----Anime----'  in str1:
-                        while str1 != '':
+                        if '----disable----' in str1:
+                            break
+                        currUser = str1.strip()
+                        str1 = stuff.readline()
+                        if '----Blacklist----' in str1:
                             str1 = stuff.readline()
-                            str2 = str1.strip().split(' = ', 1)
-                            if str2[0] == '':
-                                break
-                            temp = []
-                            if ', ' in str2[1]:
-                                lstr2 = str2[1].lstrip().split(', ')
+                            if ', ' in str1:
+                                lstr2 = str1.strip().split(', ')
                                 for word in lstr2:
-                                    temp.append(word)
-                                animeKeyWords[str2[0]] = temp
+                                    blacklist.append(word)
                             else:
-                                temp.append(str2[1].lstrip())
-                                animeKeyWords[str2[0]] = temp
-                    if '----Manga----'  in str1:
-                        while str1 != '':
-                            str1 = stuff.readline()
-                            str2 = str1.strip().split(' = ', 1)
-                            if str2[0] == '':
-                                break
-                            temp = []
-                            if ', ' in str2[1]:
-                                lstr2 = str2[1].lstrip().split(', ')
-                                for word in lstr2:
-                                    temp.append(word)
-                                mangaKeyWords[str2[0]] = temp
-                            else:
-                                temp.append(str2[1].lstrip())
-                                mangaKeyWords[str2[0]] = temp
-            settings = open('settings.txt', 'r')
-            inbox = praw.models.Inbox(r, [])
-            msgs = inbox.unread(limit=1).__iter__()
-            for words in msgs:
-                words.mark_read()
-                if words.body.lower().startswith('stop'):
-                    #redditor.message('Bot paused', 'Bot has been paused. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
-                    while pause() == False:
-                        time.sleep(5)
-                if words.body.lower().startswith('!'):
-                    currentRun()
-                if words.body.lower().startswith('list'):
-                    listKeyWords('')
-                if words.body.lower().startswith('add:'):
-                    addKeyWords(words.body)
-                if words.body.lower().startswith('remove:'):
-                    removeKeyWords(words.body)
-                if words.body.lower().startswith('settings:'):
-                    changeSettings(words.body)
-                if words.body.lower().startswith('commands') or words.body.lower().startswith('cmds') or words.body.lower().startswith('help'):
-                    #redditor.message('Bot commands', '`stop` - Stop sending all notifications. \n\n `start` - If stopped, resume notifier. \n\n `!` - Get bot info and current settings. \n\n `settings: <subreddit1>, <subreddit2>, ...` - Set the settings file. `Ex: settings: anime, manga` \n\n `list` - Get current keywords list. \n\n `add: <subreddit> ---- name = kw1, kw2, ...` - Add keywords for the specified sub to the list. `Ex: add: anime ---- Steins;Gate = steins;gate, s;g, okabe, kurisu` \n\n `remove: <subreddit> ---- name` - Remove keywords for the specified sub from the list. `Ex: remove: anime ---- Hunter x Hunter` \n\n `clear-log` - Clear log file.')
-                    pass
-                if words.body.lower().startswith('clear-log'):
-                    pass
-                    #redditor.message('Bot log', 'Log has been cleared.')
-            msgs = None
-            f = settings.read()
-            settings.close()
-            if 'anime' in f:
-                errorCatch = '/r/anime'
-                subreddit = r.subreddit('anime')
-                for submission in subreddit.new(limit=8):
-                    op_title = submission.title.lower()
-                    if submission.id not in allcheck:
-                        if len(allcheck) == 40 and ('anime' in f or 'questions' in f):
-                            allcheck = [allcheck[-1]] + allcheck[:-1]
-                            allcheck[0] = submission.id
-                            allcheckcount += 1
-                        if len(allcheck) != 40 and ('anime' in f or 'questions' in f):
-                            allcheck.append(submission.id)
-                            allcheckcount += 1
-                    blacklist_words = any(string in op_title for string in blacklist)
-                    if blacklist_words and submission.id not in checked:
-                        checked.append(submission.id)
-                    for anime in animeKeyWords.items():
-                        key_words = any(string in op_title for string in anime[1])
-                        if submission.id not in checked and key_words:
-                            msg = '%s related thread: %s in %s' % (anime[0], submission.shortlink, errorCatch)
-                            info = (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title
-                            #stuff = discord.Server()
-                            await bot.send_message(discord.Object(id='259921092586504202'), msg)
-                            #redditor.message('%s' % info, msg)
+                                blacklist.append(str1.strip())
+                        if '----Anime----'  in str1:
+                            while str1 != '':
+                                str1 = stuff.readline()
+                                str2 = str1.strip().split(' = ', 1)
+                                if str2[0] == '':
+                                    break
+                                temp = []
+                                if ', ' in str2[1]:
+                                    lstr2 = str2[1].lstrip().split(', ')
+                                    for word in lstr2:
+                                        temp.append(word)
+                                    animeKeyWords[str2[0]] = temp
+                                else:
+                                    temp.append(str2[1].lstrip())
+                                    animeKeyWords[str2[0]] = temp
+                        if '----Manga----'  in str1:
+                            while str1 != '':
+                                str1 = stuff.readline()
+                                str2 = str1.strip().split(' = ', 1)
+                                if str2[0] == '':
+                                    break
+                                temp = []
+                                if ', ' in str2[1]:
+                                    lstr2 = str2[1].lstrip().split(', ')
+                                    for word in lstr2:
+                                        temp.append(word)
+                                    mangaKeyWords[str2[0]] = temp
+                                else:
+                                    temp.append(str2[1].lstrip())
+                                    mangaKeyWords[str2[0]] = temp
+                userFollows[currUser] = [blacklist, animeKeyWords, mangaKeyWords]
+                settings = open('settings.txt', 'r')
+                inbox = praw.models.Inbox(r, [])
+                msgs = inbox.unread(limit=1).__iter__()
+                for words in msgs:
+                    words.mark_read()
+                    if words.body.lower().startswith('stop'):
+                        #redditor.message('Bot paused', 'Bot has been paused. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
+                        while pause() == False:
+                            time.sleep(5)
+                    if words.body.lower().startswith('!'):
+                        currentRun()
+                    if words.body.lower().startswith('list'):
+                        listKeyWords('')
+                    if words.body.lower().startswith('add:'):
+                        addKeyWords(words.body)
+                    if words.body.lower().startswith('remove:'):
+                        removeKeyWords(words.body)
+                    if words.body.lower().startswith('settings:'):
+                        changeSettings(words.body)
+                    if words.body.lower().startswith('commands') or words.body.lower().startswith('cmds') or words.body.lower().startswith('help'):
+                        #redditor.message('Bot commands', '`stop` - Stop sending all notifications. \n\n `start` - If stopped, resume notifier. \n\n `!` - Get bot info and current settings. \n\n `settings: <subreddit1>, <subreddit2>, ...` - Set the settings file. `Ex: settings: anime, manga` \n\n `list` - Get current keywords list. \n\n `add: <subreddit> ---- name = kw1, kw2, ...` - Add keywords for the specified sub to the list. `Ex: add: anime ---- Steins;Gate = steins;gate, s;g, okabe, kurisu` \n\n `remove: <subreddit> ---- name` - Remove keywords for the specified sub from the list. `Ex: remove: anime ---- Hunter x Hunter` \n\n `clear-log` - Clear log file.')
+                        pass
+                    if words.body.lower().startswith('clear-log'):
+                        pass
+                        #redditor.message('Bot log', 'Log has been cleared.')
+                msgs = None
+                f = settings.read()
+                settings.close()
+                if 'anime' in f:
+                    errorCatch = '/r/anime'
+                    subreddit = r.subreddit('anime')
+                    for submission in subreddit.new(limit=8):
+                        op_title = submission.title.lower()
+                        if submission.id not in allcheck:
+                            if len(allcheck) == 40 and ('anime' in f or 'questions' in f):
+                                allcheck = [allcheck[-1]] + allcheck[:-1]
+                                allcheck[0] = submission.id
+                                allcheckcount += 1
+                            if len(allcheck) != 40 and ('anime' in f or 'questions' in f):
+                                allcheck.append(submission.id)
+                                allcheckcount += 1
+                        blacklist_words = any(string in op_title for string in blacklist)
+                        if blacklist_words and submission.id not in checked:
                             checked.append(submission.id)
-                            hits += 1
-                await asyncio.sleep(4)
-            if 'manga' in f:
-                errorCatch = '/r/manga'
-                subreddit = r.subreddit('manga')
-                for submission in subreddit.new(limit=8):
-                    op_title = submission.title.lower()
-                    if submission.id not in allcheck:
-                        if len(allcheck) == 40 and 'manga' in f:
-                            allcheck = [allcheck[-1]] + allcheck[:-1]
-                            allcheck[0] = submission.id
-                            allcheckcount += 1
-                        if len(allcheck) != 40 and 'manga' in f:
-                            allcheck.append(submission.id)
-                            allcheckcount += 1
-                    blacklist_words = any(string in op_title for string in blacklist)
-                    if blacklist_words and submission.id not in checked:
-                        checked.append(submission.id)
-                    for manga in mangaKeyWords.items():
-                        key_words = any(string in op_title for string in manga[1])
-                        if submission.id not in checked and key_words:
-                            msg = '[%s related thread](%s) in %s' % (manga[0], submission.shortlink, errorCatch)
-                            info = (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title
-                            #redditor.message('%s' % info, msg)
+                        for eachUser in userFollows:
+                            print(eachUser)
+                            for anime in animeKeyWords.items():
+                                key_words = any(string in op_title for string in anime[1])
+                                if submission.id not in checked and key_words:
+                                    msg = '%s related thread: %s in %s' % (anime[0], submission.shortlink, errorCatch)
+                                    info = (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title
+                                    #stuff = discord.Server()
+                                    #await bot.send_message(discord.Object(id='259921092586504202'), msg)
+                                    #redditor.message('%s' % info, msg)
+                                    checked.append(submission.id)
+                                    hits += 1
+                    await asyncio.sleep(4)
+                if 'manga' in f:
+                    errorCatch = '/r/manga'
+                    subreddit = r.subreddit('manga')
+                    for submission in subreddit.new(limit=8):
+                        op_title = submission.title.lower()
+                        if submission.id not in allcheck:
+                            if len(allcheck) == 40 and 'manga' in f:
+                                allcheck = [allcheck[-1]] + allcheck[:-1]
+                                allcheck[0] = submission.id
+                                allcheckcount += 1
+                            if len(allcheck) != 40 and 'manga' in f:
+                                allcheck.append(submission.id)
+                                allcheckcount += 1
+                        blacklist_words = any(string in op_title for string in blacklist)
+                        if blacklist_words and submission.id not in checked:
                             checked.append(submission.id)
-                            hits += 1
-                await asyncio.sleep(4)
+                        for manga in mangaKeyWords.items():
+                            key_words = any(string in op_title for string in manga[1])
+                            if submission.id not in checked and key_words:
+                                msg = '[%s related thread](%s) in %s' % (manga[0], submission.shortlink, errorCatch)
+                                info = (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title
+                                #redditor.message('%s' % info, msg)
+                                checked.append(submission.id)
+                                hits += 1
+                    await asyncio.sleep(4)
             if loopCount > 10:
                 failCount = 0
         # except Exception as e:

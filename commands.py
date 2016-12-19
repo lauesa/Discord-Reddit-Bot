@@ -5,20 +5,6 @@ from appudiscordbot import start_time
 def pause():
     return True
 
-
-def currentRun(allcheck, hits, loops):
-    seconds = time.time() - start_time
-    minutes, seconds = divmod(seconds, 60)
-    hours, minutes = divmod(minutes, 60)
-    days, hours = divmod(hours, 24)
-    temp = open('settings.txt', 'r').readlines()
-    currRun = '```Bot has been running for: %s days, %s hours, %s minutes, and %s seconds\n\nLinks checked: %s\nHits: %s\nItterations without fail: %s\nCurrent settings:\n' % (int(days), int(hours), int(minutes), int(seconds), allcheck, hits, loops)
-    for i in temp:
-        currRun += '    ' + i
-    currRun += '\n\n' + 'Available settings: anime, questions, manga, steinsgate```'
-    info = 'Bot is running'
-    return currRun
-
 def changeSettings(word):
     try:
         temp = []
