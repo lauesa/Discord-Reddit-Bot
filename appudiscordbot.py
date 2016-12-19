@@ -258,181 +258,183 @@ async def on_ready():
     async def info(ctx):
         await bot.say(ctx.message.author.mention + currentRun(allcheckcount, hits, loopCount))
     while True:
-        failCount = 0
-        #try:
-        print('-----------')
-        r = praw.Reddit(client_id='736Wc6N44ZYyxA',
-                             client_secret='HSZQv9Bkh1SOEBESiXbU6lpPYOw',
-                             password='appu2844',
-                             user_agent='Related Submissions by /u/appu1232',
-                             username='appubot')
-        errorCatch = ''
-        while True:
-            loopCount += 1
+        try:
+            failCount = 0
+            #try:
+            print('-----------')
+            r = praw.Reddit(client_id='736Wc6N44ZYyxA',
+                                 client_secret='HSZQv9Bkh1SOEBESiXbU6lpPYOw',
+                                 password='appu2844',
+                                 user_agent='Related Submissions by /u/appu1232',
+                                 username='appubot')
+            errorCatch = ''
+            while True:
+                loopCount += 1
 
-            str1 = '+'
-            currentRun(allcheckcount, hits, loopCount)
-            # @bot.command(pass_context=True)
-            # async def info(ctx):
-            #     await bot.say(ctx.message.author.mention + currentRun(allcheckcount, hits, loopCount))
-            if len(checked) >= 80:
-                checked = checked[40:]
-            for users in os.listdir('users'):
-                if users == 'allusers.txt':
-                    continue
-                print(users)
-                with open('%susers/%s' % (path, users), 'r') as stuff:
-                    str1 = stuff.readline()
-                    if '----disable----' in str1:
+                str1 = '+'
+                currentRun(allcheckcount, hits, loopCount)
+                # @bot.command(pass_context=True)
+                # async def info(ctx):
+                #     await bot.say(ctx.message.author.mention + currentRun(allcheckcount, hits, loopCount))
+                if len(checked) >= 80:
+                    checked = checked[40:]
+                for users in os.listdir('users'):
+                    if users == 'allusers.txt':
                         continue
-                    currUser = str1.strip()
-                    while str1 != '':
+                    print(users)
+                    with open('%susers/%s' % (path, users), 'r') as stuff:
                         str1 = stuff.readline()
-                        if '----Blacklist----' in str1:
+                        if '----disable----' in str1:
+                            continue
+                        currUser = str1.strip()
+                        while str1 != '':
                             str1 = stuff.readline()
-                            if ', ' in str1:
-                                lstr2 = str1.strip().split(', ')
-                                for word in lstr2:
-                                    blacklist.append(word)
-                            else:
-                                blacklist.append(str1.strip())
-                        if '----Anime----'  in str1:
-                            while str1 != '':
+                            if '----Blacklist----' in str1:
                                 str1 = stuff.readline()
-                                str2 = str1.strip().split(' = ', 1)
-                                if str2[0] == '':
-                                    break
-                                temp = []
-                                if ', ' in str2[1]:
-                                    lstr2 = str2[1].lstrip().split(', ')
+                                if ', ' in str1:
+                                    lstr2 = str1.strip().split(', ')
                                     for word in lstr2:
-                                        temp.append(word)
-                                    animeKeyWords[str2[0]] = temp
+                                        blacklist.append(word)
                                 else:
-                                    temp.append(str2[1].lstrip())
-                                    animeKeyWords[str2[0]] = temp
-                        if '----Manga----'  in str1:
-                            while str1 != '':
-                                str1 = stuff.readline()
-                                str2 = str1.strip().split(' = ', 1)
-                                if str2[0] == '':
-                                    break
-                                temp = []
-                                if ', ' in str2[1]:
-                                    lstr2 = str2[1].lstrip().split(', ')
-                                    for word in lstr2:
-                                        temp.append(word)
-                                    mangaKeyWords[str2[0]] = temp
-                                else:
-                                    temp.append(str2[1].lstrip())
-                                    mangaKeyWords[str2[0]] = temp
-                userFollows[currUser] = [animeKeyWords, mangaKeyWords]
-            settings = open('settings.txt', 'r')
-            msg = ''
-            f = settings.read()
-            settings.close()
-            if 'anime' in f:
-                errorCatch = '/r/anime'
-                subreddit = r.subreddit('anime')
-                for submission in subreddit.new(limit=8):
-                    op_title = submission.title.lower()
-                    if submission.id not in allcheck:
-                        if len(allcheck) == 40 and ('anime'):
-                            allcheck = [allcheck[-1]] + allcheck[:-1]
-                            allcheck[0] = submission.id
-                            allcheckcount += 1
-                        if len(allcheck) != 40 and ('anime'):
-                            allcheck.append(submission.id)
-                            allcheckcount += 1
-                    blacklist_words = any(string in op_title for string in blacklist)
-                    if blacklist_words and submission.id not in checked:
-                        checked.append(submission.id)
-                    alertUsers = []
-                    for eachUser in userFollows.items():
-                        for anime in eachUser[1][0].items():
-                            key_words = any(string in op_title for string in anime[1])
-                            if submission.id not in checked and key_words:
-                                alertUsers.append(eachUser[0].strip())
-                                msg = '\n%s related thread: "%s"\n%s in %s' % (anime[0], (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title, submission.shortlink, errorCatch)
-                                hits += 1
-                    allmentions = ''
-                    for i in alertUsers:
-                        temp = await bot.get_user_info(i)
-                        allmentions += temp.mention + ' '
-                    if msg != '':
-                        await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
-                        checked.append(submission.id)
-                await asyncio.sleep(1)
-            msg = ''
-            if 'manga' in f:
-                errorCatch = '/r/manga'
-                subreddit = r.subreddit('manga')
-                for submission in subreddit.new(limit=8):
-                    op_title = submission.title.lower()
-                    if submission.id not in allcheck:
-                        if len(allcheck) == 40 and 'manga' in f:
-                            allcheck = [allcheck[-1]] + allcheck[:-1]
-                            allcheck[0] = submission.id
-                            allcheckcount += 1
-                        if len(allcheck) != 40 and 'manga' in f:
-                            allcheck.append(submission.id)
-                            allcheckcount += 1
-                    blacklist_words = any(string in op_title for string in blacklist)
-                    if blacklist_words and submission.id not in checked:
-                        checked.append(submission.id)
-                    alertUsers = []
-                    for eachUser in userFollows.items():
-                        for manga in eachUser[1][1].items():
-                            key_words = any(string in op_title for string in manga[1])
-                            if submission.id not in checked and key_words:
-                                alertUsers.append(eachUser[0].strip())
-                                msg = '\n%s related thread: "%s"\n%s in %s' % (manga[0], (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title, submission.shortlink, errorCatch)
-                                hits += 1
-                    allmentions = ''
-                    for i in alertUsers:
-                        temp = await bot.get_user_info(i)
-                        allmentions += temp.mention + ' '
-                    if msg != '':
-                        await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
-                        checked.append(submission.id)
-                await asyncio.sleep(4)
-            if loopCount > 10:
-                failCount = 0
-        # except Exception as e:
-        #     try:
-        #         if failCount <= 4:
-        #             failCount += 1
-        #             try:
-        #                 #traceback.print_exc()
-        #                 time.sleep(5)
-        #                 #redditor.message('Bot crashed', 'Failed at loop %d in %s block. Error: `%s` Attempting to restart in 2 minutes. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)' % (loopCount, errorCatch, str(e)))
-        #                 #logger('--------CRASHED--------\n')
-        #                 #logger('Crashed during loop. Sent Reddit message. Attempting to restart in 2 minutes. Error: %s %s\n' % (str(e), failCount))
-        #                 time.sleep(120)
-        #             except Exception as g:
-        #                 pass
-        #                 #sendEmail(300, 'Bot crashed', 'Restarting postponed 5 minutes. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
-        #                 #logger('--------CRASHED--------\n')
-        #                 #logger('Crashed trying to send exception message. Sent email. Attempting to restart in 30 minutes. Error: %s\n' % str(g))
-        #         else:
-        #             failCount += 1
-        #             try:
-        #                 pass
-        #                 #redditor.message('Bot has crashed too many times', 'Restarting postponed for 30 mins. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
-        #             except:
-        #                 pass
-        #             #sendEmail(1800, 'Bot crashed too many times', 'Restarting postponed 30 minutes. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
-        #             #logger('--------CRASHED--------\n')
-        #             #logger('Crashing during loop too much. Sent Reddit message and email. Attempting to restart in 30 minutes. Error: %s\n' % str(e))
-        #             failCount = 0
-        #     except Exception as f:
-        #         if failCount > 4:
-        #             #logger('######## Crashing too much, sleeping for 5 minutes. ########\n\n')
-        #             failCount = 0
-        #             time.sleep(300)
-        #         else:
-        #             failCount += 1
-        #             #logger('--------CRASHED--------\n')
-        #             #logger('Crashed at exception handler. Error: %s %s\n' % (f, failCount))
+                                    blacklist.append(str1.strip())
+                            if '----Anime----'  in str1:
+                                while str1 != '':
+                                    str1 = stuff.readline()
+                                    str2 = str1.strip().split(' = ', 1)
+                                    if str2[0] == '':
+                                        break
+                                    temp = []
+                                    if ', ' in str2[1]:
+                                        lstr2 = str2[1].lstrip().split(', ')
+                                        for word in lstr2:
+                                            temp.append(word)
+                                        animeKeyWords[str2[0]] = temp
+                                    else:
+                                        temp.append(str2[1].lstrip())
+                                        animeKeyWords[str2[0]] = temp
+                            if '----Manga----'  in str1:
+                                while str1 != '':
+                                    str1 = stuff.readline()
+                                    str2 = str1.strip().split(' = ', 1)
+                                    if str2[0] == '':
+                                        break
+                                    temp = []
+                                    if ', ' in str2[1]:
+                                        lstr2 = str2[1].lstrip().split(', ')
+                                        for word in lstr2:
+                                            temp.append(word)
+                                        mangaKeyWords[str2[0]] = temp
+                                    else:
+                                        temp.append(str2[1].lstrip())
+                                        mangaKeyWords[str2[0]] = temp
+                    userFollows[currUser] = [animeKeyWords, mangaKeyWords]
+                settings = open('settings.txt', 'r')
+                msg = ''
+                f = settings.read()
+                settings.close()
+                if 'anime' in f:
+                    errorCatch = '/r/anime'
+                    subreddit = r.subreddit('anime')
+                    for submission in subreddit.new(limit=8):
+                        op_title = submission.title.lower()
+                        if submission.id not in allcheck:
+                            if len(allcheck) == 40 and ('anime'):
+                                allcheck = [allcheck[-1]] + allcheck[:-1]
+                                allcheck[0] = submission.id
+                                allcheckcount += 1
+                            if len(allcheck) != 40 and ('anime'):
+                                allcheck.append(submission.id)
+                                allcheckcount += 1
+                        blacklist_words = any(string in op_title for string in blacklist)
+                        if blacklist_words and submission.id not in checked:
+                            checked.append(submission.id)
+                        alertUsers = []
+                        for eachUser in userFollows.items():
+                            for anime in eachUser[1][0].items():
+                                key_words = any(string in op_title for string in anime[1])
+                                if submission.id not in checked and key_words:
+                                    alertUsers.append(eachUser[0].strip())
+                                    msg = '\n%s related thread: "%s"\n%s in %s' % (anime[0], (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title, submission.shortlink, errorCatch)
+                                    hits += 1
+                        allmentions = ''
+                        for i in alertUsers:
+                            temp = await bot.get_user_info(i)
+                            allmentions += temp.mention + ' '
+                        if msg != '':
+                            await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
+                            checked.append(submission.id)
+                    await asyncio.sleep(1)
+                msg = ''
+                if 'manga' in f:
+                    errorCatch = '/r/manga'
+                    subreddit = r.subreddit('manga')
+                    for submission in subreddit.new(limit=8):
+                        op_title = submission.title.lower()
+                        if submission.id not in allcheck:
+                            if len(allcheck) == 40 and 'manga' in f:
+                                allcheck = [allcheck[-1]] + allcheck[:-1]
+                                allcheck[0] = submission.id
+                                allcheckcount += 1
+                            if len(allcheck) != 40 and 'manga' in f:
+                                allcheck.append(submission.id)
+                                allcheckcount += 1
+                        blacklist_words = any(string in op_title for string in blacklist)
+                        if blacklist_words and submission.id not in checked:
+                            checked.append(submission.id)
+                        alertUsers = []
+                        for eachUser in userFollows.items():
+                            for manga in eachUser[1][1].items():
+                                key_words = any(string in op_title for string in manga[1])
+                                if submission.id not in checked and key_words:
+                                    alertUsers.append(eachUser[0].strip())
+                                    msg = '\n%s related thread: "%s"\n%s in %s' % (manga[0], (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title, submission.shortlink, errorCatch)
+                                    hits += 1
+                        allmentions = ''
+                        for i in alertUsers:
+                            temp = await bot.get_user_info(i)
+                            allmentions += temp.mention + ' '
+                        if msg != '':
+                            await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
+                            checked.append(submission.id)
+                    await asyncio.sleep(4)
+                if loopCount > 10:
+                    failCount = 0
+        except Exception as e:
+            pass
+            # try:
+            #     if failCount <= 4:
+            #         failCount += 1
+            #         try:
+            #             #traceback.print_exc()
+            #             time.sleep(5)
+            #             #redditor.message('Bot crashed', 'Failed at loop %d in %s block. Error: `%s` Attempting to restart in 2 minutes. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)' % (loopCount, errorCatch, str(e)))
+            #             #logger('--------CRASHED--------\n')
+            #             #logger('Crashed during loop. Sent Reddit message. Attempting to restart in 2 minutes. Error: %s %s\n' % (str(e), failCount))
+            #             time.sleep(120)
+            #         except Exception as g:
+            #             pass
+            #             #sendEmail(300, 'Bot crashed', 'Restarting postponed 5 minutes. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
+            #             #logger('--------CRASHED--------\n')
+            #             #logger('Crashed trying to send exception message. Sent email. Attempting to restart in 30 minutes. Error: %s\n' % str(g))
+            #     else:
+            #         failCount += 1
+            #         try:
+            #             pass
+            #             #redditor.message('Bot has crashed too many times', 'Restarting postponed for 30 mins. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
+            #         except:
+            #             pass
+            #         #sendEmail(1800, 'Bot crashed too many times', 'Restarting postponed 30 minutes. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
+            #         #logger('--------CRASHED--------\n')
+            #         #logger('Crashing during loop too much. Sent Reddit message and email. Attempting to restart in 30 minutes. Error: %s\n' % str(e))
+            #         failCount = 0
+            # except Exception as f:
+            #     if failCount > 4:
+            #         #logger('######## Crashing too much, sleeping for 5 minutes. ########\n\n')
+            #         failCount = 0
+            #         time.sleep(300)
+            #     else:
+            #         failCount += 1
+            #         #logger('--------CRASHED--------\n')
+            #         #logger('Crashed at exception handler. Error: %s %s\n' % (f, failCount))
 
 bot.run('MjU5OTE3Njk0MzE5NDYwMzUy.Cze6TQ.00RvXhRokiMeuBKRF7qzjnolRj0')
