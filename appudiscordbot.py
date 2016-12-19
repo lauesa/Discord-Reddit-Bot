@@ -277,7 +277,6 @@ async def on_ready():
             #     await bot.say(ctx.message.author.mention + currentRun(allcheckcount, hits, loopCount))
             if len(checked) >= 80:
                 checked = checked[40:]
-            print('asdf\n\n\n\n\nasdfasdf')
             for users in os.listdir('users'):
                 if users == 'allusers.txt':
                     continue
@@ -361,8 +360,7 @@ async def on_ready():
                         temp = await bot.get_user_info(i)
                         allmentions += temp.mention + ' '
                     if msg != '':
-                        print(allmentions + msg)
-                        #await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
+                        await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
                         checked.append(submission.id)
                 await asyncio.sleep(1)
             msg = ''
@@ -395,8 +393,7 @@ async def on_ready():
                         temp = await bot.get_user_info(i)
                         allmentions += temp.mention + ' '
                     if msg != '':
-                        print(allmentions + msg)
-                        #await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
+                        await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
                         checked.append(submission.id)
                 await asyncio.sleep(4)
             if loopCount > 10:
