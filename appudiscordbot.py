@@ -20,10 +20,12 @@ bot = commands.Bot(command_prefix='ap:', description='test')
 #     await bot.say(left + right)
 @bot.command(pass_context=True)
 async def follow(ctx):
+    toFollow = ctx.message.content.split('follow', 1)[1]
     f = open('%susers/allusers.txt' % path, 'r+')
     all = f.read().strip()
     if all != '':
         users = all.split(',')
+        users = users[:-1]
     else:
         users = []
     if ctx.message.author.id not in users:
@@ -254,6 +256,8 @@ async def on_ready():
     checked = []
     hits = 0
     userFollows = {}
+    print('test')
+
     @bot.command(pass_context=True)
     async def info(ctx):
         await bot.say(ctx.message.author.mention + currentRun(allcheckcount, hits, loopCount))
@@ -262,6 +266,7 @@ async def on_ready():
             failCount = 0
             #try:
             print('-----------')
+            #traceback.print_exc()
             r = praw.Reddit(client_id='736Wc6N44ZYyxA',
                                  client_secret='HSZQv9Bkh1SOEBESiXbU6lpPYOw',
                                  password='appu2844',
@@ -273,9 +278,12 @@ async def on_ready():
 
                 str1 = '+'
                 currentRun(allcheckcount, hits, loopCount)
+                userFollows.clear()
                 if len(checked) >= 80:
                     checked = checked[40:]
                 for users in os.listdir('users'):
+                    animeKeyWords = {}
+                    mangaKeyWords = {}
                     if users == 'allusers.txt':
                         continue
                     with open('%susers/%s' % (path, users), 'r') as stuff:
@@ -287,10 +295,10 @@ async def on_ready():
                             str1 = stuff.readline()
                             if '----Blacklist----' in str1:
                                 str1 = stuff.readline()
-                                if ', ' in str1:
-                                    lstr2 = str1.strip().split(', ')
+                                if ',' in str1:
+                                    lstr2 = str1.strip().split(',')
                                     for word in lstr2:
-                                        blacklist.append(word)
+                                        blacklist.append(word.strip())
                                 else:
                                     blacklist.append(str1.strip())
                             if '----Anime----'  in str1:
@@ -300,10 +308,10 @@ async def on_ready():
                                     if str2[0] == '':
                                         break
                                     temp = []
-                                    if ', ' in str2[1]:
-                                        lstr2 = str2[1].lstrip().split(', ')
+                                    if ',' in str2[1]:
+                                        lstr2 = str2[1].lstrip().split(',')
                                         for word in lstr2:
-                                            temp.append(word)
+                                            temp.append(word.strip())
                                         animeKeyWords[str2[0]] = temp
                                     else:
                                         temp.append(str2[1].lstrip())
@@ -315,10 +323,10 @@ async def on_ready():
                                     if str2[0] == '':
                                         break
                                     temp = []
-                                    if ', ' in str2[1]:
-                                        lstr2 = str2[1].lstrip().split(', ')
+                                    if ',' in str2[1]:
+                                        lstr2 = str2[1].lstrip().split(',')
                                         for word in lstr2:
-                                            temp.append(word)
+                                            temp.append(word.strip())
                                         mangaKeyWords[str2[0]] = temp
                                     else:
                                         temp.append(str2[1].lstrip())
@@ -330,7 +338,7 @@ async def on_ready():
                 settings.close()
                 if 'anime' in f:
                     errorCatch = '/r/anime'
-                    subreddit = r.subreddit('anime')
+                    subreddit = r.subreddit('askreddit')
                     for submission in subreddit.new(limit=8):
                         op_title = submission.title.lower()
                         if submission.id not in allcheck:
@@ -353,12 +361,14 @@ async def on_ready():
                                     msg = '\n%s related thread: "%s"\n%s in %s' % (anime[0], (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title, submission.shortlink, errorCatch)
                                     hits += 1
                         allmentions = ''
-                        for i in alertUsers:
-                            temp = await bot.get_user_info(i)
-                            allmentions += temp.mention + ' '
-                        if msg != '':
-                            await bot.send_message(discord.Object(id='260318513153966081'), allmentions + msg)
-                            checked.append(submission.id)
+                        #print(userFollows['124910128582361092'])
+                        if alertUsers is not []:
+                            for i in alertUsers:
+                                temp = await bot.get_user_info(i)
+                                allmentions += temp.mention + ' '
+                            if msg != '':
+                                await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
+                                checked.append(submission.id)
                     await asyncio.sleep(1)
                 msg = ''
                 if 'manga' in f:
@@ -386,16 +396,19 @@ async def on_ready():
                                     msg = '\n%s related thread: "%s"\n%s in %s' % (manga[0], (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title, submission.shortlink, errorCatch)
                                     hits += 1
                         allmentions = ''
-                        for i in alertUsers:
-                            temp = await bot.get_user_info(i)
-                            allmentions += temp.mention + ' '
-                        if msg != '':
-                            await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
-                            checked.append(submission.id)
+                        if alertUsers is not []:
+                            for i in alertUsers:
+                                temp = await bot.get_user_info(i)
+                                allmentions += temp.mention + ' '
+                            if msg != '':
+                                await bot.send_message(discord.Object(id='260318513153966081'), allmentions + msg)
+                                checked.append(submission.id)
                     await asyncio.sleep(4)
                 if loopCount > 10:
                     failCount = 0
         except Exception as e:
+            traceback.print_exc()
+            await asyncio.sleep(60)
             pass
             # try:
             #     if failCount <= 4:
