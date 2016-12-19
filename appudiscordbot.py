@@ -254,6 +254,9 @@ async def on_ready():
     checked = []
     hits = 0
     userFollows = {}
+    @bot.command(pass_context=True)
+    async def info(ctx):
+        await bot.say(ctx.message.author.mention + currentRun(allcheckcount, hits, loopCount))
     while True:
         failCount = 0
         #try:
@@ -269,11 +272,12 @@ async def on_ready():
 
             str1 = '+'
             currentRun(allcheckcount, hits, loopCount)
-            @bot.command(pass_context=True)
-            async def info(ctx):
-                await bot.say(ctx.message.author.mention + currentRun(allcheckcount, hits, loopCount))
+            # @bot.command(pass_context=True)
+            # async def info(ctx):
+            #     await bot.say(ctx.message.author.mention + currentRun(allcheckcount, hits, loopCount))
             if len(checked) >= 80:
                 checked = checked[40:]
+            print('asdf\n\n\n\n\nasdfasdf')
             for users in os.listdir('users'):
                 if users == 'allusers.txt':
                     continue
@@ -334,11 +338,11 @@ async def on_ready():
                 for submission in subreddit.new(limit=8):
                     op_title = submission.title.lower()
                     if submission.id not in allcheck:
-                        if len(allcheck) == 40 and ('anime' in f or 'questions' in f):
+                        if len(allcheck) == 40 and ('anime'):
                             allcheck = [allcheck[-1]] + allcheck[:-1]
                             allcheck[0] = submission.id
                             allcheckcount += 1
-                        if len(allcheck) != 40 and ('anime' in f or 'questions' in f):
+                        if len(allcheck) != 40 and ('anime'):
                             allcheck.append(submission.id)
                             allcheckcount += 1
                     blacklist_words = any(string in op_title for string in blacklist)
@@ -357,9 +361,10 @@ async def on_ready():
                         temp = await bot.get_user_info(i)
                         allmentions += temp.mention + ' '
                     if msg != '':
-                        await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
+                        print(allmentions + msg)
+                        #await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
                         checked.append(submission.id)
-                await asyncio.sleep(4)
+                await asyncio.sleep(1)
             msg = ''
             if 'manga' in f:
                 errorCatch = '/r/manga'
@@ -390,7 +395,8 @@ async def on_ready():
                         temp = await bot.get_user_info(i)
                         allmentions += temp.mention + ' '
                     if msg != '':
-                        await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
+                        print(allmentions + msg)
+                        #await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
                         checked.append(submission.id)
                 await asyncio.sleep(4)
             if loopCount > 10:
