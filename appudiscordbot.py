@@ -20,10 +20,10 @@ bot = commands.Bot(command_prefix='ap:', description='test')
 #     await bot.say(left + right)
 @bot.command(pass_context=True)
 async def follow(ctx):
-    toFollow = ctx.message.content.split('follow', 1)[1]
+    sub = ctx.message.content.split('follow', 1)[1]
     f = open('%susers/allusers.txt' % path, 'r+')
     all = f.read().strip()
-    if all != '':
+    if all:
         users = all.split(',')
         users = users[:-1]
     else:
@@ -34,19 +34,38 @@ async def follow(ctx):
         f.truncate()
         for i in users:
             f.write(i + ',')
-        keywords = open('%susers/user%s.txt' % (path, ctx.message.author.id), 'w+')
-        keywords.write(ctx.message.author.id + '\n----' + '----Blacklist----\nrecommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions\n\n----Anime----\n\n----Manga----\n\n----End----')
-        keywords.close()
-        await bot.say(ctx.message.author.mention + ' **You are now subscribed to the manga/anime notifier feed.** Your following list is empty so use ``ap:add`` to add the manga and anime you want to follow and ``ap:list`` to see your current list. Use ``ap:commands`` for more commands.')
+        f.close()
+        if sub:
+            try:
+                toFollow = ctx.message.raw_mentions[0]
+                g = open('%susers/user%s.txt' % (path, toFollow), 'r')
+                copy = g.read()
+                g.close()
+                paste = open('%susers/user%s.txt' % (path, ctx.message.author.id), 'w+')
+                paste.write(copy)
+                paste.seek(0)
+                paste.write(ctx.message.author.id)
+                paste.close()
+                await bot.say(ctx.message.author.mention + 'Subscribed and imported %s\'s list. Do ``ap:list`` to view list.' % sub)
+            except Exception as e:
+                if e is IndexError:
+                    await bot.say(ctx.message.author.mention + 'Not a valid argument. Example use: ``ap:follow`` or ``ap:follow @appu1232`` (You must tag the person if you want to copy their list)' % toFollow)
+                else:
+                    await bot.say(ctx.message.author.mention + 'Could not find the user\'s list. They might not be subscribed.')
+        else:
+            keywords = open('%susers/user%s.txt' % (path, ctx.message.author.id), 'w+')
+            keywords.write(ctx.message.author.id + '\n----' + '----Blacklist----\nrecommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions\n\n----Anime----\n\n----Manga----\n\n----End----')
+            keywords.close()
+            await bot.say(ctx.message.author.mention + ' **You are now subscribed to the manga/anime notifier feed.** Your following list is empty so use ``ap:add`` to add the manga and anime you want to follow and ``ap:list`` to see your current list. Use ``ap:commands`` for more commands.')
     else:
         await bot.say(ctx.message.author.mention + 'You are **already subscribed** to the notifier. Do ``ap:list`` to see your current list. Do ``ap:commands`` to see other commands.')
-    f.close()
+        f.close()
 
 @bot.command(pass_context=True)
 async def unfollow(ctx):
     f = open('%susers/allusers.txt' % path, 'r+')
     all = f.read().strip()
-    if all != '':
+    if all:
         users = all.split(',')
     else:
         users = []
@@ -56,7 +75,7 @@ async def unfollow(ctx):
         f.truncate()
         if users != ['']:
             for i in users:
-                if i is not '':
+                if i:
                     f.write(i + ',')
         else:
             pass
@@ -68,35 +87,55 @@ async def unfollow(ctx):
 
 @bot.command(pass_context=True)
 async def list(ctx):
+    sub = ctx.message.content.split('list', 1)[1]
     f = open('%susers/allusers.txt' % path, 'r+')
     all = f.read().strip()
-    if all != '':
+    if all:
+        users = all.split(',')
+    else:
+        users = []
+    if sub:
+        try:
+            toFollow = ctx.message.raw_mentions[0]
+            await bot.say('**%s\'s list:**' % sub)
+            for i in listKeyWords(str(toFollow)):
+                await bot.say('```%s```' % i)
+        except Exception as e:
+            if e is IndexError:
+                await bot.say(ctx.message.author.mention + 'Not a valid argument. Example use: ``ap:follow`` or ``ap:follow @appu1232`` (You must tag the person if you want to copy their list)' % toFollow)
+            else:
+                await bot.say(ctx.message.author.mention + 'Could not find the user\'s list. They might not be subscribed.')
+    else:
+        if ctx.message.author.id not in users:
+            await bot.say(ctx.message.author.mention + ' You are not subscribed to the notifier. Do ``ap:follow`` to subscribe and start adding anime/manga to follow.')
+        else:
+            await bot.say(ctx.message.author.mention)
+            for i in listKeyWords(ctx.message.author.id):
+                await bot.say('```%s```' % i)
+
+@bot.command(pass_context=True)
+async def add(ctx):
+    f = open('%susers/allusers.txt' % path, 'r+')
+    all = f.read().strip()
+    if all:
         users = all.split(',')
     else:
         users = []
     if ctx.message.author.id not in users:
-        await bot.say(ctx.message.author.mention + ' You are not subscribed to the notifier. Do ``ap:follow`` to subscribe and start adding anime/manga to follow.')
+        await bot.say(ctx.message.author.mention + 'Use ``ap:follow`` first to subscribe to the bot.')
     else:
-        await bot.say(ctx.message.author.mention)
-        for i in listKeyWords(ctx.message.author.id):
-            await bot.say('```' + i + '```')
-
-@bot.command(pass_context=True)
-async def add(ctx):
-    toFollow = ctx.message.content
-    msg = ctx.message.author.mention + '**Error** Something went wrong. Are you using the command right? Example use: ``ap:add anime One Punch Man S2 = opm s2, opm season 2, one punch man season 2``'
-    try:
-        toFollow = ctx.message.content.split('ap:add')[1].strip()
-        if addKeyWords(toFollow, ctx.message.author.id) is True:
-            await bot.say(ctx.message.author.mention + 'Successfully added ``%s`` to ``%s``. View your list with ``ap:list``.' % (toFollow.split(' ', 1)[1].strip(), toFollow.split(' ', 1)[0].strip()))
-        else:
+        msg = ctx.message.author.mention + '**Error** Something went wrong. Are you using the command right? Example use: ``ap:add anime One Punch Man S2 = opm s2, opm season 2, one punch man season 2``'
+        try:
+            toFollow = ctx.message.content.split('ap:add')[1].strip()
+            if addKeyWords(toFollow, ctx.message.author.id) is True:
+                await bot.say(ctx.message.author.mention + 'Successfully added ``%s`` to ``%s``. View your list with ``ap:list``.' % (toFollow.split(' ', 1)[1].strip(), toFollow.split(' ', 1)[0].strip()))
+            else:
+                await bot.say(msg)
+        except Exception as e:
             await bot.say(msg)
-    except Exception as e:
-        await bot.say(msg)
 
 @bot.command(pass_context=True)
 async def remove(ctx):
-    toUnfollow = ctx.message.content
     msg = ctx.message.author.mention + '**Error** Something went wrong. Are you using the command right? Example use: ``ap:remove anime One Punch Man S2``'
     try:
         toUnfollow = ctx.message.content.split('ap:remove')[1].strip()
@@ -113,32 +152,6 @@ async def settings(ctx):
 async def commands(ctx):
     await bot.say(ctx.message.author.mention +  '\n**Bot commands:**\n\n``ap:follow`` - Subscribe to the bot. This means you can start adding and removing manga and anime.\n\n``ap:unfollow`` - Unsubscribe from the bot. You will not receive any more notifications. Warning: this deletes your list.\n\n``ap:info`` - Get bot info and current settings. \n\n``ap:settings <subreddit1>, <subreddit2>, ...`` - [WORK IN PROGRESS] Set the settings file. Ex: ``ap:settings anime, manga`` \n\n``ap:list`` - Get current keywords list. \n\n``ap:add <subreddit> name = kw1, kw2, ...`` - Add keywords for the specified sub to the list. Ex: ``ap:add anime Steins;Gate = steins;gate, s;g, okabe, kurisu`` \n\n``ap:remove <subreddit> name`` - Remove keywords for the specified sub from the list. Ex: ``ap:remove anime Hunter x Hunter``')
 
-# @client.event
-# async def on_message(message):
-#     if message.content.lower().startswith('test'):
-#         tag = message.content.split('test', 1)[1].strip()
-#         #with urllib.request.urlopen("http://gelbooru.com/index.php?page=dapi&s=post&q=index&limit=100&tags=" + tag.replace(" ", "_")) as response:
-#             #match = response.read()
-#         #matches = re.findall(re.escape('file_url="') + '(.*?)' + re.escape('" '), str(match))
-#         #rand = random.randrange(0, len(matches))
-#         await client.send_message(message.channel, message.author.mention)
-#     if message.content.lower().startswith('stop'):
-#         # redditor.message('Bot paused', 'Bot has been paused. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
-#         while pause() == False:
-#             time.sleep(5)
-#     if message.content.lower().startswith('appu: !'):
-#         client.send_message(message.channel, message.author.mention + currentRun())
-#     if message.content.lower().startswith('appu: list'):
-#         client.send_message(message.channel, message.author.mention + ' list of keywords')
-#     if message.content.lower().startswith('appu: add:'):
-#         client.send_message(message.channel, message.author.mention + ' add')
-#     if message.content.lower().startswith('appu: remove:'):
-#         client.send_message(message.channel, message.author.mention + ' remove')
-#     if message.content.lower().startswith('appu: settings:'):
-#         client.send_message(message.channel, message.author.mention + ' settings')
-#     if message.content.lower().startswith('appu: commands') or message.content.lower().startswith('appu: cmds') or message.content.lower().startswith('appu: help'):
-#         client.send_message(message.channel, message.author.mention + ' ```Bot commands', '`ap:info` - Get bot info and current settings. \n\n `ap:settings: <subreddit1>, <subreddit2>, ...` - [WORK IN PROGRESS] Set the settings file. `Ex: ap:settings: anime, manga` \n\n `ap:list` - Get current keywords list. \n\n `ap:add: <subreddit> name = kw1, kw2, ...` - Add keywords for the specified sub to the list. `Ex: ap:add: anime Steins;Gate = steins;gate, s;g, okabe, kurisu` \n\n `ap:remove: <subreddit> name` Remove keywords for the specified sub from the list. `Ex: ap:remove: anime Hunter x Hunter` \n\n `clear-log` - Clear log file.```')
-
 start_time = time.time()
 failCount = 0
 tz = pytz.timezone('US/Eastern')
@@ -153,7 +166,6 @@ def currentRun(allcheck, hits, loops):
     for i in temp:
         currRun += '    ' + i
     currRun += '\n\n' + 'Available settings: anime, manga```'
-    info = 'Bot is running'
     return currRun
 
 def pause():
@@ -176,7 +188,6 @@ def changeSettings(word):
         currentRun()
     except Exception as e:
         pass
-        #redditor.message('Settings update failed', 'Could not update settings file with `%s` Error thrown: `%s`' % (word, e))
 
 
 
@@ -194,9 +205,7 @@ def listKeyWords(msg):
         msg += 'List of keywords: %s of %s\n' % (i+1, part)
         for b in blocks.split('\n'):
             msg += b + '\n'
-        info = 'Bot keyword info'
         allWords.append(msg)
-        #redditor.message('%s pt. %s' % (info, i+1), msg)
         msg = ''
     kw.close()
     return allWords
@@ -207,6 +216,8 @@ def addKeyWords(word, user):
     title = word.split(' ', 1)[1].strip()
     title2 = title.split('=', 1)[0].strip()
     keys = title.split('=', 1)[1].strip()
+    if keys.endswith(','):
+        keys = keys[:-1]
     data = afds.readlines()
     afds.close()
     if aorm.lower() == 'anime' or aorm.lower() == 'manga':
@@ -256,7 +267,6 @@ async def on_ready():
     checked = []
     hits = 0
     userFollows = {}
-    print('test')
 
     @bot.command(pass_context=True)
     async def info(ctx):
@@ -272,11 +282,9 @@ async def on_ready():
                                  password='appu2844',
                                  user_agent='Related Submissions by /u/appu1232',
                                  username='appubot')
-            errorCatch = ''
             while True:
                 loopCount += 1
 
-                str1 = '+'
                 currentRun(allcheckcount, hits, loopCount)
                 userFollows.clear()
                 if len(checked) >= 80:
@@ -334,11 +342,12 @@ async def on_ready():
                     userFollows[currUser] = [animeKeyWords, mangaKeyWords]
                 settings = open('settings.txt', 'r')
                 msg = ''
+                alertUsers = []
                 f = settings.read()
                 settings.close()
                 if 'anime' in f:
                     errorCatch = '/r/anime'
-                    subreddit = r.subreddit('askreddit')
+                    subreddit = r.subreddit('anime')
                     for submission in subreddit.new(limit=8):
                         op_title = submission.title.lower()
                         if submission.id not in allcheck:
@@ -357,20 +366,20 @@ async def on_ready():
                             for anime in eachUser[1][0].items():
                                 key_words = any(string in op_title for string in anime[1])
                                 if submission.id not in checked and key_words:
-                                    alertUsers.append(eachUser[0].strip())
-                                    msg = '\n%s related thread: "%s"\n%s in %s' % (anime[0], (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title, submission.shortlink, errorCatch)
-                                    hits += 1
+                                    if eachUser:
+                                        alertUsers.append(eachUser[0].strip())
+                                        msg = '\n%s related thread: "%s"\n%s in %s' % (anime[0], (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title, submission.shortlink, errorCatch)
+                                        hits += 1
                         allmentions = ''
-                        #print(userFollows['124910128582361092'])
-                        if alertUsers is not []:
+                        checked.append(submission.id)
+                        if alertUsers:
                             for i in alertUsers:
                                 temp = await bot.get_user_info(i)
                                 allmentions += temp.mention + ' '
-                            if msg != '':
-                                await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
-                                checked.append(submission.id)
-                    await asyncio.sleep(1)
+                            await bot.send_message(discord.Object(id='260318513153966081'), allmentions + msg)
+                    await asyncio.sleep(4)
                 msg = ''
+                alertUsers = []
                 if 'manga' in f:
                     errorCatch = '/r/manga'
                     subreddit = r.subreddit('manga')
@@ -392,17 +401,17 @@ async def on_ready():
                             for manga in eachUser[1][1].items():
                                 key_words = any(string in op_title for string in manga[1])
                                 if submission.id not in checked and key_words:
-                                    alertUsers.append(eachUser[0].strip())
-                                    msg = '\n%s related thread: "%s"\n%s in %s' % (manga[0], (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title, submission.shortlink, errorCatch)
-                                    hits += 1
+                                    if eachUser:
+                                        alertUsers.append(eachUser[0].strip())
+                                        msg = '\n%s related thread: "%s"\n%s in %s' % (manga[0], (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title, submission.shortlink, errorCatch)
+                                        hits += 1
                         allmentions = ''
-                        if alertUsers is not []:
+                        checked.append(submission.id)
+                        if alertUsers:
                             for i in alertUsers:
                                 temp = await bot.get_user_info(i)
                                 allmentions += temp.mention + ' '
-                            if msg != '':
-                                await bot.send_message(discord.Object(id='260318513153966081'), allmentions + msg)
-                                checked.append(submission.id)
+                            await bot.send_message(discord.Object(id='260318513153966081'), allmentions + msg)
                     await asyncio.sleep(4)
                 if loopCount > 10:
                     failCount = 0
