@@ -22,14 +22,7 @@ from discord.ext import commands
 blacklist = []
 animeKeyWords = {}
 mangaKeyWords = {}
-hits = 0
-allcheckcount = 0
 print('sadflkjdhsaf')
-allcheck = []
-loopCount = 0
-allcheckcount = 0
-hits = 0
-failCount = 0
 
 client = discord.Client()
 bot = commands.Bot(command_prefix='ap:', description='test')
@@ -37,10 +30,6 @@ bot = commands.Bot(command_prefix='ap:', description='test')
 # async def add(left : int, right : int):
 #     """Adds two numbers together."""
 #     await bot.say(left + right)
-
-@bot.command(pass_context=True)
-async def info(ctx):
-    await bot.say(ctx.message.author.mention + currentRun())
 
 @bot.command(pass_context=True)
 async def list(ctx):
@@ -60,7 +49,7 @@ async def settings(ctx):
 async def commands(ctx):
     await bot.say(ctx.message.author.mention +  '```Bot commands:\n\nstop - Stop sending all notifications. \n\nstart - If stopped, resume notifier. \n\n! - Get bot info and current settings. \n\nsettings: <subreddit1>, <subreddit2>, ... - Set the settings file. Ex: settings: anime, manga \n\nlist - Get current keywords list. \n\nadd: <subreddit> ---- name = kw1, kw2, ... - Add keywords for the specified sub to the list. Ex: add: anime ---- Steins;Gate = steins;gate, s;g, okabe, kurisu \n\nremove: <subreddit> ---- name - Remove keywords for the specified sub from the list. Ex: remove: anime ---- Hunter x Hunter```')
 
-@bot.event
+@client.event
 async def on_message(message):
     if message.content.lower().startswith('test'):
         tag = message.content.split('test', 1)[1].strip()
@@ -93,18 +82,19 @@ tz = pytz.timezone('US/Eastern')
 def pause():
     return True
 
-def currentRun():
+
+def currentRun(allcheck, hits, loops):
     seconds = time.time() - start_time
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
     temp = open('settings.txt', 'r').readlines()
-    msg = '```Bot has been running for: %s days, %s hours, %s minutes, and %s seconds\n\nLinks checked: %s\nHits: %s\nItterations without fail: %s\nCurrent settings:\n' % (int(days), int(hours), int(minutes), int(seconds), allcheckcount, hits, loopCount)
+    currRun = '```Bot has been running for: %s days, %s hours, %s minutes, and %s seconds\n\nLinks checked: %s\nHits: %s\nItterations without fail: %s\nCurrent settings:\n' % (int(days), int(hours), int(minutes), int(seconds), allcheck, hits, loops)
     for i in temp:
-        msg += '    ' + i
-    msg += '\n\n' + 'Available settings: anime, questions, manga, steinsgate```'
+        currRun += '    ' + i
+    currRun += '\n\n' + 'Available settings: anime, questions, manga, steinsgate```'
     info = 'Bot is running'
-    return msg
+    return currRun
 
 def changeSettings(word):
     try:
@@ -200,19 +190,17 @@ def removeKeyWords(word):
         listKeyWords('Keyword removal failed. Syntax error/word not found for: `%s` Error thrown: `%s`\n\n' % (word, e))
         afds.close()
 
-hits = 0
-allcheckcount = 0
-
 @bot.event
 async def on_ready():
+    allcheck = []
+    loopCount = 0
+    allcheckcount = 0
+    checked = []
+    hits = 0
     while True:
         failCount = 0
         #try:
         print('-----------')
-        allcheck = []
-        loopCount = 0
-        allcheckcount = 0
-        hits = 0
         r = praw.Reddit(client_id='736Wc6N44ZYyxA',
                              client_secret='HSZQv9Bkh1SOEBESiXbU6lpPYOw',
                              password='appu2844',
@@ -221,17 +209,15 @@ async def on_ready():
         errorCatch = ''
         while True:
             loopCount += 1
+
             str1 = '+'
-            checkFile = open('checked.txt', 'r+')
-            checked = checkFile.read().strip().split(',')
-            #print(checked)
-            print('checked: ' + str(len(checked)))
+            currentRun(allcheckcount, hits, loopCount)
+            print(checked)
+            @bot.command(pass_context=True)
+            async def info(ctx):
+                await bot.say(ctx.message.author.mention + currentRun(allcheckcount, hits, loopCount))
             if len(checked) >= 80:
                 checked = checked[40:]
-                checkFile.truncate()
-                for i in checked:
-                    checkFile.write(i + ',')
-            checkFile.close()
             with open('keywords.txt', 'r') as stuff:
                 while str1 != '':
                     str1 = stuff.readline()
@@ -300,15 +286,7 @@ async def on_ready():
                     #redditor.message('Bot log', 'Log has been cleared.')
             msgs = None
             f = settings.read()
-            if 'stop' in f:
-                settings.close()
-                time.sleep(10)
-                break
             settings.close()
-            allcheckFile = open('allcheck.txt', 'r+')
-            allcheck = allcheckFile.read().strip().split('.')
-            checkFile = open('checked.txt', 'r+')
-            checked = checkFile.read().strip().split(',')
             if 'anime' in f:
                 errorCatch = '/r/anime'
                 subreddit = r.subreddit('anime')
@@ -335,7 +313,7 @@ async def on_ready():
                             #redditor.message('%s' % info, msg)
                             checked.append(submission.id)
                             hits += 1
-                await asyncio.sleep(1)
+                await asyncio.sleep(4)
             if 'manga' in f:
                 errorCatch = '/r/manga'
                 subreddit = r.subreddit('manga')
@@ -360,16 +338,7 @@ async def on_ready():
                             #redditor.message('%s' % info, msg)
                             checked.append(submission.id)
                             hits += 1
-                await asyncio.sleep(1)
-            allcheckFile.truncate()
-            print('allcheck: ' + str(len(checked)))
-            for i in allcheck:
-                allcheckFile.write(i + ',')
-            allcheckFile.close()
-            checkFile.truncate()
-            for i in checked:
-                checkFile.write(i + ',')
-            checkFile.close()
+                await asyncio.sleep(4)
             if loopCount > 10:
                 failCount = 0
         # except Exception as e:
