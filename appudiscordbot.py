@@ -1,17 +1,9 @@
-import random
-import sys
-import os
+import random, sys, os, math, time, datetime, re, urllib.request, asyncio
 import discord
-import re
-import urllib.request
-import asyncio
-
-import time
-import datetime
 import pytz
 import praw
+import traceback
 import smtplib
-import math
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from discord.ext import commands
@@ -21,7 +13,6 @@ animeKeyWords = {}
 mangaKeyWords = {}
 path = 'C:/Users/Deepak/Desktop/pyscripts/discordbot/'
 
-client = discord.Client()
 bot = commands.Bot(command_prefix='ap:', description='test')
 # @bot.command()
 # async def add(left : int, right : int):
@@ -90,43 +81,61 @@ async def list(ctx):
 
 @bot.command(pass_context=True)
 async def add(ctx):
-    await bot.say(ctx.message.author.mention + ' add')
+    toFollow = ctx.message.content
+    msg = ctx.message.author.mention + '**Error** Something went wrong. Are you using the command right? Example use: ``ap:add anime One Punch Man S2 - opm s2, opm season 2, one punch man season 2``'
+    try:
+        toFollow = ctx.message.content.split('ap:add')[1].strip()
+        if addKeyWords(toFollow, ctx.message.author.id) is True:
+            await bot.say(ctx.message.author.mention + 'Successfully added ``%s`` to ``%s``. View your list with ``ap:list``.' % (toFollow.split(' ', 1)[1].strip(), toFollow.split(' ', 1)[0].strip()))
+        else:
+            await bot.say(msg)
+    except Exception as e:
+        await bot.say(msg)
 
 @bot.command(pass_context=True)
 async def remove(ctx):
-    await bot.say(ctx.message.author.mention + ' remove')
+    toUnfollow = ctx.message.content
+    msg = ctx.message.author.mention + '**Error** Something went wrong. Are you using the command right? Example use: ``ap:remove anime One Punch Man S2``'
+    try:
+        toUnfollow = ctx.message.content.split('ap:remove')[1].strip()
+        if removeKeyWords(toUnfollow, ctx.message.author.id) is True:
+            await bot.say(ctx.message.author.mention + 'Successfully removed ``%s`` from ``%s``. View your list with ``ap:list``.' % (toUnfollow.split(' ', 1)[1].strip(), toUnfollow.split(' ', 1)[0].strip()))
+        else:
+            await bot.say(msg)
+    except Exception as e:
+        await bot.say(msg)
 @bot.command(pass_context=True)
 async def settings(ctx):
     await bot.say(ctx.message.author.mention + ' settings')
 @bot.command(pass_context=True)
 async def commands(ctx):
-    await bot.say(ctx.message.author.mention +  '```Bot commands:\n\nstop - Stop sending all notifications. \n\nstart - If stopped, resume notifier. \n\n! - Get bot info and current settings. \n\nsettings: <subreddit1>, <subreddit2>, ... - Set the settings file. Ex: settings: anime, manga \n\nlist - Get current keywords list. \n\nadd: <subreddit> ---- name = kw1, kw2, ... - Add keywords for the specified sub to the list. Ex: add: anime ---- Steins;Gate = steins;gate, s;g, okabe, kurisu \n\nremove: <subreddit> ---- name - Remove keywords for the specified sub from the list. Ex: remove: anime ---- Hunter x Hunter```')
+    await bot.say(ctx.message.author.mention +  '\n**Bot commands:**\n\n``ap:info`` - Get bot info and current settings. \n\n``ap:settings <subreddit1>, <subreddit2>, ...`` - [WORK IN PROGRESS] Set the settings file. Ex: ``ap:settings anime, manga`` \n\n``ap:list`` - Get current keywords list. \n\n``ap:add <subreddit> name = kw1, kw2, ...`` - Add keywords for the specified sub to the list. Ex: ``ap:add anime Steins;Gate = steins;gate, s;g, okabe, kurisu`` \n\n``ap:remove <subreddit> name`` - Remove keywords for the specified sub from the list. Ex: ``ap:remove anime Hunter x Hunter``')
 
-@client.event
-async def on_message(message):
-    if message.content.lower().startswith('test'):
-        tag = message.content.split('test', 1)[1].strip()
-        #with urllib.request.urlopen("http://gelbooru.com/index.php?page=dapi&s=post&q=index&limit=100&tags=" + tag.replace(" ", "_")) as response:
-            #match = response.read()
-        #matches = re.findall(re.escape('file_url="') + '(.*?)' + re.escape('" '), str(match))
-        #rand = random.randrange(0, len(matches))
-        await client.send_message(message.channel, message.author.mention)
-    if message.content.lower().startswith('stop'):
-        # redditor.message('Bot paused', 'Bot has been paused. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
-        while pause() == False:
-            time.sleep(5)
-    if message.content.lower().startswith('appu: !'):
-        client.send_message(message.channel, message.author.mention + currentRun())
-    if message.content.lower().startswith('appu: list'):
-        client.send_message(message.channel, message.author.mention + ' list of keywords')
-    if message.content.lower().startswith('appu: add:'):
-        client.send_message(message.channel, message.author.mention + ' add')
-    if message.content.lower().startswith('appu: remove:'):
-        client.send_message(message.channel, message.author.mention + ' remove')
-    if message.content.lower().startswith('appu: settings:'):
-        client.send_message(message.channel, message.author.mention + ' settings')
-    if message.content.lower().startswith('appu: commands') or message.content.lower().startswith('appu: cmds') or message.content.lower().startswith('appu: help'):
-        client.send_message(message.channel, message.author.mention + ' ```Bot commands', '`stop` - Stop sending all notifications. \n\n `start` - If stopped, resume notifier. \n\n `!` - Get bot info and current settings. \n\n `settings: <subreddit1>, <subreddit2>, ...` - Set the settings file. `Ex: settings: anime, manga` \n\n `list` - Get current keywords list. \n\n `add: <subreddit> ---- name = kw1, kw2, ...` - Add keywords for the specified sub to the list. `Ex: add: anime ---- Steins;Gate = steins;gate, s;g, okabe, kurisu` \n\n `remove: <subreddit> ---- name` - Remove keywords for the specified sub from the list. `Ex: remove: anime ---- Hunter x Hunter` \n\n `clear-log` - Clear log file.```')
+# @client.event
+# async def on_message(message):
+#     if message.content.lower().startswith('test'):
+#         tag = message.content.split('test', 1)[1].strip()
+#         #with urllib.request.urlopen("http://gelbooru.com/index.php?page=dapi&s=post&q=index&limit=100&tags=" + tag.replace(" ", "_")) as response:
+#             #match = response.read()
+#         #matches = re.findall(re.escape('file_url="') + '(.*?)' + re.escape('" '), str(match))
+#         #rand = random.randrange(0, len(matches))
+#         await client.send_message(message.channel, message.author.mention)
+#     if message.content.lower().startswith('stop'):
+#         # redditor.message('Bot paused', 'Bot has been paused. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
+#         while pause() == False:
+#             time.sleep(5)
+#     if message.content.lower().startswith('appu: !'):
+#         client.send_message(message.channel, message.author.mention + currentRun())
+#     if message.content.lower().startswith('appu: list'):
+#         client.send_message(message.channel, message.author.mention + ' list of keywords')
+#     if message.content.lower().startswith('appu: add:'):
+#         client.send_message(message.channel, message.author.mention + ' add')
+#     if message.content.lower().startswith('appu: remove:'):
+#         client.send_message(message.channel, message.author.mention + ' remove')
+#     if message.content.lower().startswith('appu: settings:'):
+#         client.send_message(message.channel, message.author.mention + ' settings')
+#     if message.content.lower().startswith('appu: commands') or message.content.lower().startswith('appu: cmds') or message.content.lower().startswith('appu: help'):
+#         client.send_message(message.channel, message.author.mention + ' ```Bot commands', '`ap:info` - Get bot info and current settings. \n\n `ap:settings: <subreddit1>, <subreddit2>, ...` - [WORK IN PROGRESS] Set the settings file. `Ex: ap:settings: anime, manga` \n\n `ap:list` - Get current keywords list. \n\n `ap:add: <subreddit> name = kw1, kw2, ...` - Add keywords for the specified sub to the list. `Ex: ap:add: anime Steins;Gate = steins;gate, s;g, okabe, kurisu` \n\n `ap:remove: <subreddit> name` Remove keywords for the specified sub from the list. `Ex: ap:remove: anime Hunter x Hunter` \n\n `clear-log` - Clear log file.```')
 
 start_time = time.time()
 failCount = 0
@@ -190,64 +199,52 @@ def listKeyWords(msg):
     kw.close()
     return allWords
 
-def addKeyWords(word):
-    afds = open('keywords.txt', 'r')
-    try:
-        temp = word.split('add:', 1)[1].lstrip()
-        aorm = temp.split('----', 1)[0].strip()
-        title = temp.split('----', 1)[1].strip()
-        title2 = title.split('=', 1)[0].strip()
-        keys = title.split('=', 1)[1].strip()
-        data = afds.readlines()
+def addKeyWords(word, user):
+    afds = open('%susers/user%s.txt' % (path, user), 'rU')
+    aorm = word.split(' ', 1)[0].strip()
+    title = word.split(' ', 1)[1].strip()
+    title2 = title.split('=', 1)[0].strip()
+    keys = title.split('=', 1)[1].strip()
+    data = afds.readlines()
+    afds.close()
+    if aorm.lower() == 'anime' or aorm.lower() == 'manga':
+        for i,d in enumerate(data):
+            if '----' in d:
+                if aorm.lower() in d.lower():
+                    c = 0
+                    while data[i+c] != '\n':
+                        c += 1
+                    data[i+c] = title2 + ' = ' + keys + '\n' + data[i+c]
+                    afds = open('%susers/user%s.txt' % (path, user), 'w')
+                    afds.writelines(data)
+                    afds.close()
+    else:
         afds.close()
-        if aorm.lower() == 'anime' or aorm.lower() == 'manga':
-            for i,d in enumerate(data):
-                if '----' in d:
-                    if aorm.lower() in d.lower():
-                        c = 0
-                        while data[i+c] != '\n':
-                            c += 1
-                        data[i+c] = title2 + ' = ' + keys + '\n' + data[i+c]
-                        afds = open('keywords.txt', 'w')
-                        afds.writelines(data)
-                        afds.close()
-                        listKeyWords('Added `%s = %s` to `%s`\n\n' % (title2, keys, aorm.lower()))
-        else:
-            #redditor.message('Keyword addition failed', 'Unable to add `%s` to `%s`' % (title, aorm.lower()))
-            afds.close()
-    except Exception as e:
-        #traceback.print_exc()
-        #redditor.message('Keyword addition failed', 'Something went wrong when tokenizing: `%s` Error thrown: `%s`' % (word, e))
-        afds.close()
+        return False
+    return True
 
-def removeKeyWords(word):
-    afds = open('keywords.txt', 'r')
-    try:
-        temp = word.split('remove:', 1)[1].lstrip()
-        aorm = temp.split('----', 1)[0].strip()
-        title = temp.split('----', 1)[1].strip()
-        data = afds.readlines()
+def removeKeyWords(word, user):
+    afds = open('%susers/user%s.txt' % (path, user), 'r')
+    aorm = word.split(' ', 1)[0].strip()
+    title = word.split(' ', 1)[1].strip()
+    data = afds.readlines()
+    afds.close()
+    if aorm.lower() == 'anime' or aorm.lower() == 'manga':
+        for i,d in enumerate(data):
+            if '----' in d:
+                if aorm.lower() in d.lower():
+                    c = 0
+                    while title.lower().strip() != data[i+c].lower().split(' = ', 1)[0].strip():
+                        c += 1
+                    data[i+c] = ''
+                    afds = open('%susers/user%s.txt' % (path, user), 'w')
+                    afds.truncate()
+                    afds.writelines(data)
+                    afds.close()
+    else:
         afds.close()
-        if aorm.lower() == 'anime' or aorm.lower() == 'manga':
-            for i,d in enumerate(data):
-                if '----' in d:
-                    if aorm.lower() in d.lower():
-                        c = 0
-                        while title.lower().strip() != data[i+c].lower().split(' = ', 1)[0].strip():
-                            c += 1
-                        data[i+c] = ''
-                        afds = open('keywords.txt', 'w')
-                        afds.truncate()
-                        afds.writelines(data)
-                        afds.close()
-                        listKeyWords('Removed `%s` from `%s`\n\n' % (title, aorm.lower()))
-        else:
-            listKeyWords('Keyword removal failed. Could not find `%s` in `%s`\n\n' % (title, aorm.lower()))
-            afds.close()
-    except Exception as e:
-        #traceback.print_exc()
-        listKeyWords('Keyword removal failed. Syntax error/word not found for: `%s` Error thrown: `%s`\n\n' % (word, e))
-        afds.close()
+        return False
+    return True
 
 @bot.event
 async def on_ready():
@@ -328,31 +325,7 @@ async def on_ready():
                                     mangaKeyWords[str2[0]] = temp
                 userFollows[currUser] = [animeKeyWords, mangaKeyWords]
             settings = open('settings.txt', 'r')
-            inbox = praw.models.Inbox(r, [])
-            msgs = inbox.unread(limit=1).__iter__()
-            for words in msgs:
-                words.mark_read()
-                if words.body.lower().startswith('stop'):
-                    #redditor.message('Bot paused', 'Bot has been paused. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
-                    while pause() == False:
-                        time.sleep(5)
-                if words.body.lower().startswith('!'):
-                    currentRun()
-                if words.body.lower().startswith('list'):
-                    listKeyWords('')
-                if words.body.lower().startswith('add:'):
-                    addKeyWords(words.body)
-                if words.body.lower().startswith('remove:'):
-                    removeKeyWords(words.body)
-                if words.body.lower().startswith('settings:'):
-                    changeSettings(words.body)
-                if words.body.lower().startswith('commands') or words.body.lower().startswith('cmds') or words.body.lower().startswith('help'):
-                    #redditor.message('Bot commands', '`stop` - Stop sending all notifications. \n\n `start` - If stopped, resume notifier. \n\n `!` - Get bot info and current settings. \n\n `settings: <subreddit1>, <subreddit2>, ...` - Set the settings file. `Ex: settings: anime, manga` \n\n `list` - Get current keywords list. \n\n `add: <subreddit> ---- name = kw1, kw2, ...` - Add keywords for the specified sub to the list. `Ex: add: anime ---- Steins;Gate = steins;gate, s;g, okabe, kurisu` \n\n `remove: <subreddit> ---- name` - Remove keywords for the specified sub from the list. `Ex: remove: anime ---- Hunter x Hunter` \n\n `clear-log` - Clear log file.')
-                    pass
-                if words.body.lower().startswith('clear-log'):
-                    pass
-                    #redditor.message('Bot log', 'Log has been cleared.')
-            msgs = None
+            msg = ''
             f = settings.read()
             settings.close()
             if 'anime' in f:
@@ -383,9 +356,11 @@ async def on_ready():
                     for i in alertUsers:
                         temp = await bot.get_user_info(i)
                         allmentions += temp.mention + ' '
-                    #await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
-                    checked.append(submission.id)
+                    if msg != '':
+                        await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
+                        checked.append(submission.id)
                 await asyncio.sleep(4)
+            msg = ''
             if 'manga' in f:
                 errorCatch = '/r/manga'
                 subreddit = r.subreddit('manga')
@@ -402,14 +377,21 @@ async def on_ready():
                     blacklist_words = any(string in op_title for string in blacklist)
                     if blacklist_words and submission.id not in checked:
                         checked.append(submission.id)
-                    for manga in mangaKeyWords.items():
-                        key_words = any(string in op_title for string in manga[1])
-                        if submission.id not in checked and key_words:
-                            msg = '[%s related thread](%s) in %s' % (manga[0], submission.shortlink, errorCatch)
-                            info = (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title
-                            #redditor.message('%s' % info, msg)
-                            checked.append(submission.id)
-                            hits += 1
+                    alertUsers = []
+                    for eachUser in userFollows.items():
+                        for manga in eachUser[1][1].items():
+                            key_words = any(string in op_title for string in manga[1])
+                            if submission.id not in checked and key_words:
+                                alertUsers.append(eachUser[0].strip())
+                                msg = '\n%s related thread: "%s"\n%s in %s' % (manga[0], (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title, submission.shortlink, errorCatch)
+                                hits += 1
+                    allmentions = ''
+                    for i in alertUsers:
+                        temp = await bot.get_user_info(i)
+                        allmentions += temp.mention + ' '
+                    if msg != '':
+                        await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
+                        checked.append(submission.id)
                 await asyncio.sleep(4)
             if loopCount > 10:
                 failCount = 0
