@@ -11,7 +11,7 @@ from discord.ext import commands
 blacklist = []
 animeKeyWords = {}
 mangaKeyWords = {}
-path = 'C:/Users/Appu/Desktop/pyscripts/'
+path = 'C:/Users/Appu/Desktop/latest/'
 
 bot = commands.Bot(command_prefix='ap:', description='test')
 # @bot.command()
@@ -46,20 +46,22 @@ async def follow(ctx):
                 paste.seek(0)
                 paste.write(ctx.message.author.id)
                 paste.close()
-                await bot.say(ctx.message.author.mention + 'Subscribed and imported %s\'s list. Do ``ap:list`` to view list.' % sub)
+                await bot.say(ctx.message.author.mention + ' Subscribed and imported %s\'s list. Do ``ap:list`` to view list.' % sub)
             except Exception as e:
                 traceback.print_exc()
                 if e is IndexError:
-                    await bot.say(ctx.message.author.mention + 'Not a valid argument. Example use: ``ap:follow`` or ``ap:follow @appu1232`` (You must tag the person if you want to copy their list)' % toFollow)
+                    await bot.say(ctx.message.author.mention + ' Not a valid argument. Example use: ``ap:follow`` or ``ap:follow @appu1232`` (You must tag the person if you want to copy their list)' % toFollow)
                 else:
-                    await bot.say(ctx.message.author.mention + 'Could not find the user\'s list. They might not be subscribed.')
+                    await bot.say(ctx.message.author.mention + ' Could not find the user\'s list. They might not be subscribed.')
         else:
             keywords = open('%susers/user%s.txt' % (path, ctx.message.author.id), 'w+')
-            keywords.write(ctx.message.author.id + '\n----' + '----Blacklist----\nrecommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions\n\n----Anime----\n\n----Manga----\n\n----End----')
+            keywords.write(ctx.message.author.id + '\n' + '----Blacklist----\nrecommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions\n\n----Anime----\n\n----Manga----\n\n----End----')
             keywords.close()
             await bot.say(ctx.message.author.mention + ' **You are now subscribed to the manga/anime notifier feed.** Your following list is empty so use ``ap:add`` to add the manga and anime you want to follow and ``ap:list`` to see your current list. Use ``ap:commands`` for more commands.')
     else:
-        await bot.say(ctx.message.author.mention + 'You are **already subscribed** to the notifier. Do ``ap:list`` to see your current list. Do ``ap:commands`` to see other commands.')
+        # if sub:
+        #     await merge/follow
+        await bot.say(ctx.message.author.mention + ' You are **already subscribed** to the notifier. Do ``ap:list`` to see your current list. Do ``ap:commands`` to see other commands.')
         f.close()
 
 @bot.command(pass_context=True)
@@ -83,7 +85,7 @@ async def unfollow(ctx):
         os.remove('%susers/user%s.txt' % (path, ctx.message.author.id))
         await bot.say(ctx.message.author.mention + ' You have unsubscribed from the manga/anime notifier feed. Use ``ap:follow`` to resubscribe if you\'d like. **Note: your list has been deleted** so if you subscribe again, you must remake your list.')
     else:
-        await bot.say(ctx.message.author.mention + 'You are already unsubscribed from the notifier.')
+        await bot.say(ctx.message.author.mention + ' You are already unsubscribed from the notifier.')
     f.close()
 
 @bot.command(pass_context=True)
@@ -104,9 +106,9 @@ async def list(ctx):
         except Exception as e:
             traceback.print_exc()
             if e is IndexError:
-                await bot.say(ctx.message.author.mention + 'Not a valid argument. Example use: ``ap:follow`` or ``ap:follow @appu1232`` (You must tag the person if you want to copy their list)' % toFollow)
+                await bot.say(ctx.message.author.mention + ' Not a valid argument. Example use: ``ap:follow`` or ``ap:follow @appu1232`` (You must tag the person if you want to copy their list)' % toFollow)
             else:
-                await bot.say(ctx.message.author.mention + 'Could not find the user\'s list. They might not be subscribed.')
+                await bot.say(ctx.message.author.mention + ' Could not find the user\'s list. They might not be subscribed.')
     else:
         if ctx.message.author.id not in users:
             await bot.say(ctx.message.author.mention + ' You are not subscribed to the notifier. Do ``ap:follow`` to subscribe and start adding anime/manga to follow.')
@@ -124,13 +126,13 @@ async def add(ctx):
     else:
         users = []
     if ctx.message.author.id not in users:
-        await bot.say(ctx.message.author.mention + 'Use ``ap:follow`` first to subscribe to the bot.')
+        await bot.say(ctx.message.author.mention + ' Use ``ap:follow`` first to subscribe to the bot.')
     else:
-        msg = ctx.message.author.mention + '**Error** Something went wrong. Are you using the command right? Example use: ``ap:add anime One Punch Man S2 = opm s2, opm season 2, one punch man season 2``'
+        msg = ctx.message.author.mention + ' **Error** Something went wrong. Are you using the command right? Example use: ``ap:add anime One Punch Man S2 = opm s2, opm season 2, one punch man season 2``'
         try:
             toFollow = ctx.message.content.split('ap:add')[1].strip()
             if addKeyWords(toFollow, ctx.message.author.id) is True:
-                await bot.say(ctx.message.author.mention + 'Successfully added ``%s`` to ``%s``. View your list with ``ap:list``.' % (toFollow.split(' ', 1)[1].strip(), toFollow.split(' ', 1)[0].strip()))
+                await bot.say(ctx.message.author.mention + ' Successfully added ``%s`` to ``%s``. View your list with ``ap:list``.' % (toFollow.split(' ', 1)[1].strip(), toFollow.split(' ', 1)[0].strip()))
             else:
                 await bot.say(msg)
         except Exception as e:
@@ -139,11 +141,11 @@ async def add(ctx):
 
 @bot.command(pass_context=True)
 async def remove(ctx):
-    msg = ctx.message.author.mention + '**Error** Something went wrong. Are you using the command right? Example use: ``ap:remove anime One Punch Man S2``'
+    msg = ctx.message.author.mention + ' **Error** Something went wrong. Are you using the command right? Example use: ``ap:remove anime One Punch Man S2``'
     try:
         toUnfollow = ctx.message.content.split('ap:remove')[1].strip()
         if removeKeyWords(toUnfollow, ctx.message.author.id) is True:
-            await bot.say(ctx.message.author.mention + 'Successfully removed ``%s`` from ``%s``. View your list with ``ap:list``.' % (toUnfollow.split(' ', 1)[1].strip(), toUnfollow.split(' ', 1)[0].strip()))
+            await bot.say(ctx.message.author.mention + ' Successfully removed ``%s`` from ``%s``. View your list with ``ap:list``.' % (toUnfollow.split(' ', 1)[1].strip(), toUnfollow.split(' ', 1)[0].strip()))
         else:
             await bot.say(msg)
     except Exception as e:
@@ -378,7 +380,7 @@ async def checker():
                             for i in alertUsers:
                                 temp = await bot.get_user_info(i)
                                 allmentions += temp.mention + ' '
-                            await bot.send_message(discord.Object(id='260318513153966081'), allmentions + msg)
+                            await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
                     await asyncio.sleep(4)
                 msg = ''
                 if 'manga' in f:
@@ -414,7 +416,7 @@ async def checker():
                             for i in alertUsers:
                                 temp = await bot.get_user_info(i)
                                 allmentions += temp.mention + ' '
-                            await bot.send_message(discord.Object(id='260318513153966081'), allmentions + msg)
+                            await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
                     await asyncio.sleep(4)
                 if loopCount > 10:
                     failCount = 0
@@ -429,6 +431,7 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('-----------')
+    await checker()
 
-bot.loop.create_task(checker())
-bot.run('MjU5OTE3Njk0MzE5NDYwMzUy.Cze6TQ.00RvXhRokiMeuBKRF7qzjnolRj0')
+#bot.loop.create_task(checker())
+bot.run('MjYwNjUxNDYxMTgzMTQzOTM4.CzpeGw.pyPh2fEexDvvzJjThlXD5GaXKbw')
