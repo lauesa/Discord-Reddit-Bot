@@ -154,7 +154,7 @@ async def settings(ctx):
     await bot.say(ctx.message.author.mention + ' settings')
 @bot.command(pass_context=True)
 async def commands(ctx):
-    await bot.say(ctx.message.author.mention +  '\n**Bot commands:**\n\n``ap:follow`` - Subscribe to the bot. This means you can start adding and removing manga and anime.\n\n``ap:unfollow`` - Unsubscribe from the bot. You will not receive any more notifications. Warning: this deletes your list.\n\n``ap:info`` - Get bot info and current settings. \n\n``ap:settings <subreddit1>, <subreddit2>, ...`` - [WORK IN PROGRESS] Set the settings file. Ex: ``ap:settings anime, manga`` \n\n``ap:list`` - Get current keywords list. \n\n``ap:add <subreddit> name = kw1, kw2, ...`` - Add keywords for the specified sub to the list. Ex: ``ap:add anime Steins;Gate = steins;gate, s;g, okabe, kurisu`` \n\n``ap:remove <subreddit> name`` - Remove keywords for the specified sub from the list. Ex: ``ap:remove anime Hunter x Hunter``')
+    await bot.say(ctx.message.author.mention +  '\n**Bot commands:**\n\n``ap:follow`` or ``ap:follow @person`` - Subscribe to the bot. This means you can start adding and removing manga and anime. Optionally, mention a person to import their list.\n\n``ap:unfollow`` - Unsubscribe from the bot. You will not receive any more notifications. Warning: this deletes your list.\n\n``ap:info`` - Get bot info and current settings. \n\n``ap:settings <subreddit1>, <subreddit2>, ...`` - [WORK IN PROGRESS] Set the settings file. Ex: ``ap:settings anime, manga`` \n\n``ap:list`` or ``ap:list @person`` - Get your current keywords list or seomeone else\'s. \n\n``ap:add <subreddit> name = kw1, kw2, ...`` - Add keywords for the specified sub to the list. Ex: ``ap:add anime Steins;Gate = steins;gate, s;g, okabe, kurisu`` \n\n``ap:remove <subreddit> name`` - Remove keywords for the specified sub from the list. Ex: ``ap:remove anime Hunter x Hunter``')
 
 start_time = time.time()
 failCount = 0
@@ -220,7 +220,7 @@ def addKeyWords(word, user):
     aorm = word.split(' ', 1)[0].strip()
     title = word.split(' ', 1)[1].strip()
     title2 = title.split('=', 1)[0].strip()
-    keys = title.split('=', 1)[1].strip()
+    keys = title.split('=', 1)[1].lower().strip()
     if keys.endswith(','):
         keys = keys[:-1]
     data = afds.readlines()
@@ -264,8 +264,7 @@ def removeKeyWords(word, user):
         return False
     return True
 
-@bot.event
-async def on_ready():
+async def checker():
     allcheck = []
     loopCount = 0
     allcheckcount = 0
@@ -279,8 +278,6 @@ async def on_ready():
     while True:
         try:
             failCount = 0
-            #try:
-            print('-----------')
             #traceback.print_exc()
             r = praw.Reddit(client_id='736Wc6N44ZYyxA',
                                  client_secret='HSZQv9Bkh1SOEBESiXbU6lpPYOw',
@@ -289,7 +286,6 @@ async def on_ready():
                                  username='appubot')
             while True:
                 loopCount += 1
-
                 currentRun(allcheckcount, hits, loopCount)
                 userFollows.clear()
                 if len(checked) >= 80:
@@ -347,13 +343,14 @@ async def on_ready():
                     userFollows[currUser] = [animeKeyWords, mangaKeyWords]
                 settings = open('settings.txt', 'r')
                 msg = ''
-                alertUsers = []
                 f = settings.read()
                 settings.close()
                 if 'anime' in f:
                     errorCatch = '/r/anime'
                     subreddit = r.subreddit('anime')
                     for submission in subreddit.new(limit=8):
+                        if submission.id in checked:
+                            continue
                         op_title = submission.title.lower()
                         if submission.id not in allcheck:
                             if len(allcheck) == 40 and ('anime'):
@@ -384,11 +381,12 @@ async def on_ready():
                             await bot.send_message(discord.Object(id='260318513153966081'), allmentions + msg)
                     await asyncio.sleep(4)
                 msg = ''
-                alertUsers = []
                 if 'manga' in f:
                     errorCatch = '/r/manga'
                     subreddit = r.subreddit('manga')
                     for submission in subreddit.new(limit=8):
+                        if submission.id in checked:
+                            continue
                         op_title = submission.title.lower()
                         if submission.id not in allcheck:
                             if len(allcheck) == 40 and 'manga' in f:
@@ -424,40 +422,13 @@ async def on_ready():
             traceback.print_exc()
             await asyncio.sleep(60)
             pass
-            # try:
-            #     if failCount <= 4:
-            #         failCount += 1
-            #         try:
-            #             #traceback.print_exc()
-            #             time.sleep(5)
-            #             #redditor.message('Bot crashed', 'Failed at loop %d in %s block. Error: `%s` Attempting to restart in 2 minutes. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)' % (loopCount, errorCatch, str(e)))
-            #             #logger('--------CRASHED--------\n')
-            #             #logger('Crashed during loop. Sent Reddit message. Attempting to restart in 2 minutes. Error: %s %s\n' % (str(e), failCount))
-            #             time.sleep(120)
-            #         except Exception as g:
-            #             pass
-            #             #sendEmail(300, 'Bot crashed', 'Restarting postponed 5 minutes. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
-            #             #logger('--------CRASHED--------\n')
-            #             #logger('Crashed trying to send exception message. Sent email. Attempting to restart in 30 minutes. Error: %s\n' % str(g))
-            #     else:
-            #         failCount += 1
-            #         try:
-            #             pass
-            #             #redditor.message('Bot has crashed too many times', 'Restarting postponed for 30 mins. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
-            #         except:
-            #             pass
-            #         #sendEmail(1800, 'Bot crashed too many times', 'Restarting postponed 30 minutes. [Manage server.](https://cloud.digitalocean.com/droplets/33441368/graphs)')
-            #         #logger('--------CRASHED--------\n')
-            #         #logger('Crashing during loop too much. Sent Reddit message and email. Attempting to restart in 30 minutes. Error: %s\n' % str(e))
-            #         failCount = 0
-            # except Exception as f:
-            #     if failCount > 4:
-            #         #logger('######## Crashing too much, sleeping for 5 minutes. ########\n\n')
-            #         failCount = 0
-            #         time.sleep(300)
-            #     else:
-            #         failCount += 1
-            #         #logger('--------CRASHED--------\n')
-            #         #logger('Crashed at exception handler. Error: %s %s\n' % (f, failCount))
 
+@bot.event
+async def on_ready():
+    print('Logged in as')
+    print(bot.user.name)
+    print(bot.user.id)
+    print('-----------')
+
+bot.loop.create_task(checker())
 bot.run('MjU5OTE3Njk0MzE5NDYwMzUy.Cze6TQ.00RvXhRokiMeuBKRF7qzjnolRj0')

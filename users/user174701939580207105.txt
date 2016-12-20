@@ -1,19 +1,21 @@
 174701939580207105
---------Blacklist----
+----Blacklist----
 recommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions
 
 ----Anime----
-Scum's Wish = Kuzu No Honkai, Scums Wish, Scum's Wish
-Little Witch Academia = Little Witch Academia
-KonoSuba S2 = Kono Subarashii Sekai Ni Shukufuku Wo, Konosuba, Shukufuku
-Masamune-Kun = Masamune-Kun No Revenge, Masamune-kun's Revenge
-Blue Exorcist S2 = Ao No Exorcist, Blue Exorcist
+Scum's Wish = kuzu no honkai, scums wish, scum's wish
+Little Witch Academia = little witch academia
+KonoSuba S2 = kono subarashii sekai ni shukufuku wo, konosuba, shukufuku
+Masamune-Kun = masamune-kun no revenge, masamune-kun's revenge
+Blue Exorcist S2 = ao no exorcist, blue exorcist
 
 ----Manga----
-Tokyo Ghoul Re = Tokyo Ghoul Re, TG:RE, TG chapter, TG:RE chapter
-Boku no Hero = Boku No Hero, Boku No Hero Academia, My Hero Academy, BnHA
-The Promised Neverland = The Promised Neverland, Yakusoku no Neverland
-To You, The Immortal = Fumetsu no Anata e, To You The Immortal, Fumetsu no Ame, Fumetsu no Ane, To You, The Immortal
-Tate No Yuushal = Tate No Yuusha, Rising of the Shield Hero, Shield Hero, Tate no Yuusha no Nariagari
+Tokyo Ghoul Re = tokyo ghoul re, tg:re, tg chapter, tg:re chapter
+Boku no Hero = boku no hero, boku no hero academia, my hero academy, bnha
+The Promised Neverland = the promised neverland, yakusoku no neverland
+To You, The Immortal = fumetsu no anata e, to you the immortal, fumetsu no ame, fumetsu no ane, to you, the immortal
+Tate No Yuusha = tate no yuusha, rising of the shield hero, shield hero, tate no yuusha no nariagari
+Koi to Uso = koi to uso, love and lies, love and lie, lies and love, lie and love
+Kaguya Wants to be Confessed To = kaguya wants to be, kagaya wants to be, kuguya wants to be, kaguya want to be
 
 ----End----

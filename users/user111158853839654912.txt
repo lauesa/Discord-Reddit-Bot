@@ -1,0 +1,14 @@
+111158853839654912
+----Blacklist----
+recommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions
+
+----Anime----
+
+----Manga----
+Koi to Uso = koi to uso, love and lies, love and lie, lies and love, lie and love
+ReLIFE = relife
+Masamune-kun no Revenge = masamune-kun no revenge
+The Gamer = the gamer
+Yamada-kun to 7-nin no Majo = yamada-kun to 7-nin no majo, yamada-kun to nana-nin no majo
+
+----End----
