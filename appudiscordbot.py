@@ -249,10 +249,14 @@ def listKeyWords(msg):
 
 def addKeyWords(word, user):
     afds = open('%susers/user%s.txt' % (path, user), 'rU')
-    aorm = word.split(' ', 1)[0].strip()
-    print(aorm)
-    title = word.split(' ', 1)[1].strip()
-    print(title)
+    if word.split(' ', 1)[0].strip() == '-a':
+        aorm = word.split(' ', 2)[1].strip()
+        title = word.split(' ', 2)[2].strip()
+        allthreads = True
+    else:
+        aorm = word.split(' ', 1)[0].strip()
+        title = word.split(' ', 1)[1].strip()
+        allthreads = False
     title2 = title.split('=', 1)[0].strip()
     print(title2)
     keys = title.split('=', 1)[1].lower().strip()
@@ -269,7 +273,7 @@ def addKeyWords(word, user):
                     c = 0
                     while data[i+c] != '\n':
                         c += 1
-                    if title2.startswith('-a'):
+                    if allthreads:
                         title2 = '[All Threads] ' + title2[3:]
                     else:
                         if aorm.lower() == 'anime':
@@ -297,8 +301,13 @@ def removeKeyWords(word, user):
             if '----' in d:
                 if aorm.lower() in d.lower():
                     c = 0
-                    while title.lower().strip() != data[i+c].lower().split(' = ', 1)[0].strip():
+                    line = '----End----'
+                    while title.lower().strip() != line:
                         c += 1
+                        if data[i+c].startswith('[All Threads]'):
+                            line = data[i+c][14:].lower().split(' = ', 1)[0].strip()
+                        elif data[i+c].startswith('[Episodes Only]') or data[i+c].startswith('[Chapters Only]'):
+                            line = data[i+c][16:].lower().split(' = ', 1)[0].strip()
                     data[i+c] = ''
                     afds = open('%susers/user%s.txt' % (path, user), 'w')
                     afds.truncate()
