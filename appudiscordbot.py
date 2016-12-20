@@ -11,7 +11,7 @@ from discord.ext import commands
 blacklist = []
 animeKeyWords = {}
 mangaKeyWords = {}
-path = 'C:/Users/Deepak/Desktop/pyscripts/discordbot/'
+path = 'C:/Users/Appu/Desktop/pyscripts/'
 
 bot = commands.Bot(command_prefix='ap:', description='test')
 # @bot.command()
@@ -48,6 +48,7 @@ async def follow(ctx):
                 paste.close()
                 await bot.say(ctx.message.author.mention + 'Subscribed and imported %s\'s list. Do ``ap:list`` to view list.' % sub)
             except Exception as e:
+                traceback.print_exc()
                 if e is IndexError:
                     await bot.say(ctx.message.author.mention + 'Not a valid argument. Example use: ``ap:follow`` or ``ap:follow @appu1232`` (You must tag the person if you want to copy their list)' % toFollow)
                 else:
@@ -101,6 +102,7 @@ async def list(ctx):
             for i in listKeyWords(str(toFollow)):
                 await bot.say('```%s```' % i)
         except Exception as e:
+            traceback.print_exc()
             if e is IndexError:
                 await bot.say(ctx.message.author.mention + 'Not a valid argument. Example use: ``ap:follow`` or ``ap:follow @appu1232`` (You must tag the person if you want to copy their list)' % toFollow)
             else:
@@ -132,6 +134,7 @@ async def add(ctx):
             else:
                 await bot.say(msg)
         except Exception as e:
+            traceback.print_exc()
             await bot.say(msg)
 
 @bot.command(pass_context=True)
@@ -144,6 +147,7 @@ async def remove(ctx):
         else:
             await bot.say(msg)
     except Exception as e:
+        traceback.print_exc()
         await bot.say(msg)
 @bot.command(pass_context=True)
 async def settings(ctx):
@@ -187,6 +191,7 @@ def changeSettings(word):
         setfile = open('settings.txt', 'r').read()
         currentRun()
     except Exception as e:
+        traceback.print_exc()
         pass
 
 
