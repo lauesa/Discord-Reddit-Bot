@@ -1,9 +1,9 @@
-216831855482241025
+--disable--216831855482241025
 ----Blacklist----
 recommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions
 
 ----Anime----
-Re:Zero = re:zero = re:zero s2, re:zero season 2, re zero s2, re zero season 2, kara hajimeru isekai seikatsu s2, kara hajimeru isekai seikatsu season 2, [fanart] emilia, emilia, emilia-tan, emt, emilia maji tenshi, emiria, emelia, lia, lia-tan, [fanart] emt, re:zero announcement, re zero announcement, re:zero confirmation, re zero confirmation
+[All Threads] Re:Zero = re:zero s2, re:zero season 2, re zero s2, re zero season 2, kara hajimeru isekai seikatsu s2, kara hajimeru isekai seikatsu season 2, [fanart] emilia, emilia, emilia-tan, emt, emilia maji tenshi, emiria, emelia, lia-tan, [fanart] emt, re:zero announcement, re zero announcement, re:zero confirmation, re zero confirmation
 
 ----Manga----
 

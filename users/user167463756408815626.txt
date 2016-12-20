@@ -1,0 +1,9 @@
+--disable--167463756408815626
+--------Blacklist----
+recommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions
+
+----Anime----
+
+----Manga----
+
+----End----
