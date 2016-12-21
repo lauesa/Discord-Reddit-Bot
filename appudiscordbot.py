@@ -478,9 +478,11 @@ async def checker():
                                         temp = await bot.get_user_info(j)
                                         allmentions += temp.mention + ' '
                                     await bot.send_message(discord.Object(id=i), allmentions + msg)
+                                    await bot.send_message(discord.Object(id='260974991401680908'), msg)
                                     allmentions = ''
                                 else:
-                                    await bot.send_message(discord.User(id=i), allmentions + msg)
+                                    await bot.send_message(discord.User(id=i), msg)
+                                    await bot.send_message(discord.Object(id='260974991401680908'), msg)
                     await asyncio.sleep(4)
                 msg = ''
                 if 'manga' in f:
@@ -541,6 +543,7 @@ async def checker():
         except Exception as e:
             traceback.print_exc()
             await asyncio.sleep(60)
+            asyncio.ensure_future()
             pass
 
 @bot.event
