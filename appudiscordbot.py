@@ -55,7 +55,7 @@ async def follow(ctx):
                     await bot.say(ctx.message.author.mention + ' Could not find the user\'s list. They might not be subscribed.')
         else:
             keywords = open('%susers/user%s.txt' % (path, ctx.message.author.id), 'w+')
-            keywords.write(ctx.message.author.id + '\n' + '----Blacklist----\nrecommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions\n\n----Anime----\n\n----Manga----\n\n----End----')
+            keywords.write(ctx.message.author.id + '\nNotif location: ' + ctx.message.author.id + '\n----Blacklist----\nrecommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions\n\n----Anime----\n\n----Manga----\n\n----End----')
             keywords.close()
             await bot.say(ctx.message.author.mention + ' **You are now subscribed to the manga/anime notifier feed.** Your following list is empty so use ``ap:add`` to add the manga and anime you want to follow and ``ap:list`` to see your current list. Use ``ap:commands`` for more commands.')
     else:
