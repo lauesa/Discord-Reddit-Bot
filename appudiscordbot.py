@@ -89,6 +89,36 @@ async def unfollow(ctx):
     f.close()
 
 @bot.command(pass_context=True)
+async def location(ctx):
+    if not isFollowing(ctx.message.author.id):
+        await bot.say(ctx.message.author.mention +  ' Use ``ap:follow`` first to subscribe to the bot. Do ``ap:commands`` for more help')
+    else:
+        try:
+            sub = ctx.message.content.split('location', 1)[1].strip()
+            f = open('%susers/user%s.txt' % (path, ctx.message.author.id), 'r+')
+            content = f.readlines()
+            if sub.lower() == 'here':
+                content[1] = 'Notif location: %s\n' % str(ctx.message.channel.id)
+            elif sub.lower() == 'dm':
+                content[1] = 'Notif location: %s\n' % ctx.message.author.id
+            else:
+                channel = ctx.message.raw_channel_mentions
+                if channel != []:
+                    content[1] = 'Notif location: %s\n' % str(channel[0])
+                else:
+                    await bot.say(ctx.message.author.mention + ' Invalid location. Ex: ``ap:location dm`` Possible locations:\n``ap:location dm`` - Direct message you\n``ap:location here`` - This channel\n``ap:location #channel`` - Other channel on this server')
+            f.seek(0)
+            f.truncate()
+            for i in content:
+                f.write(i)
+            f.close()
+            await bot.say(ctx.message.author.mention + ' Successfully set location.')
+        except:
+            traceback.print_exc()
+            await bot.say(ctx.message.author.mention + ' Please specify a location. Ex: ``ap:location dm`` Possible locations:\n``ap:location dm`` - Direct message you\n``ap:location here`` - This channel\n``ap:location #channel`` - Other channel on this server')
+
+
+@bot.command(pass_context=True)
 async def on(ctx):
     if not isFollowing(ctx.message.author.id):
         await bot.say(ctx.message.author.mention +  ' Use ``ap:follow`` first to subscribe to the bot. Do ``ap:commands`` for more help')
@@ -175,7 +205,7 @@ async def remove(ctx):
 
 @bot.command(pass_context=True)
 async def commands(ctx):
-    await bot.say(ctx.message.author.mention +  '\n**Bot commands:**\n\n``ap:follow`` or ``ap:follow @person`` - Subscribe to the bot. This means you can start adding and removing manga and anime. Optionally, mention a person to import their list.\n\n``ap:unfollow`` - Unsubscribe from the bot. You will not receive any more notifications. Warning: this deletes your list.\n\n``ap:list`` or ``ap:list @person`` - Get your current keywords list or seomeone else\'s. \n\n``ap:add <subreddit> name = kw1, kw2, ...``  or ``ap:add -a <subreddit> name = kw1, kw2, ...`` - Add an anime or manga to follow. Using the ``-a`` flag gives you notifications on all threads posted. Leave it out to recieve only episode/chapter updates. Supported subreddits: anime, manga. Ex: ``ap:add anime Little With Academia = little witch academia`` or ``ap:add -a manga Boku no Hero = boku no hero academia, my hero academia``\n\n``ap:remove <subreddit> name`` - Remove keywords for the specified sub from the list. Ex: ``ap:remove anime Hunter x Hunter``\n\n``ap:off`` - Turn off all notifications for you. Useful if you want to stop notifications temporarily but don\'t want to delete your list.\n\n``ap:on`` - Turn on notifications if off.\n\n``ap:info`` - Get bot info and current settings.')
+    await bot.say(ctx.message.author.mention +  '\n**Bot commands:**\n\n``ap:follow`` or ``ap:follow @person`` - Subscribe to the bot. This means you can start adding and removing manga and anime. Optionally, mention a person to import their list.\n\n``ap:unfollow`` - Unsubscribe from the bot. You will not receive any more notifications. Warning: this deletes your list.\n\n``ap:list`` or ``ap:list @person`` - Get your current keywords list or seomeone else\'s. \n\n``ap:add <subreddit> name = kw1, kw2, ...``  or ``ap:add -a <subreddit> name = kw1, kw2, ...`` - Add an anime or manga to follow. Using the ``-a`` flag gives you notifications on all threads posted. Leave it out to recieve only episode/chapter updates. Supported subreddits: anime, manga. Ex: ``ap:add anime Little With Academia = little witch academia`` or ``ap:add -a manga Boku no Hero = boku no hero academia, my hero academia``\n\n``ap:remove <subreddit> name`` - Remove keywords for the specified sub from the list. Ex: ``ap:remove anime Hunter x Hunter``\n\n``ap:location <dm/channel>`` - Where to get notifications. ``dm`` for direct message, ``here`` for current channel or ``#channel_name`` for another channel.\n\n``ap:off`` - Turn off all notifications for you. Useful if you want to stop notifications temporarily but don\'t want to delete your list.\n\n``ap:on`` - Turn on notifications if off.\n\n``ap:info`` - Get bot info and current settings.')
 
 start_time = time.time()
 tz = pytz.timezone('US/Eastern')
@@ -234,6 +264,7 @@ def listKeyWords(msg):
     kw.readline()
     kw.readline()
     kw.readline()
+    kw.readline()
     kw2 = kw.read()
     part = int(math.ceil(len(kw2) / 1900))
     kw4 = [kw2[i:i+1900] for i in range(0, len(kw2), 1900)]
@@ -258,14 +289,11 @@ def addKeyWords(word, user):
         title = word.split(' ', 1)[1].strip()
         allthreads = False
     title2 = title.split('=', 1)[0].strip()
-    print(title2)
     keys = title.split('=', 1)[1].lower().strip()
-    print(keys)
     if keys.endswith(','):
         keys = keys[:-1]
     data = afds.readlines()
     afds.close()
-    print(aorm.lower())
     if aorm.lower() == 'anime' or aorm.lower() == 'manga':
         for i,d in enumerate(data):
             if '----' in d:
@@ -285,7 +313,6 @@ def addKeyWords(word, user):
                     afds.writelines(data)
                     afds.close()
     else:
-        print('adslkfj')
         afds.close()
         return False
     return True
@@ -354,7 +381,10 @@ async def checker():
                         if '--disable--' in str1:
                             continue
                         currUser = str1.strip()
+                        str1 = stuff.readline()
                         while str1 != '':
+                            if 'Notif location: ' in str1:
+                                notif = str1.split('Notif location: ')[1].strip()
                             str1 = stuff.readline()
                             if '----Blacklist----' in str1:
                                 str1 = stuff.readline()
@@ -394,7 +424,7 @@ async def checker():
                                     else:
                                         temp.append(str2[1].lstrip())
                                         mangaKeyWords[str2[0]] = temp
-                    userFollows[currUser] = [animeKeyWords, mangaKeyWords]
+                    userFollows[currUser] = [animeKeyWords, mangaKeyWords, notif]
                 settings = open('settings.txt', 'r')
                 msg = ''
                 f = settings.read()
@@ -417,7 +447,7 @@ async def checker():
                         blacklist_words = any(string in op_title for string in blacklist)
                         if blacklist_words and submission.id not in checked:
                             checked.append(submission.id)
-                        alertUsers = []
+                        alertUsers = {}
                         for eachUser in userFollows.items():
                             for anime in eachUser[1][0].items():
                                 key_words = any(string in op_title for string in anime[1])
@@ -431,16 +461,26 @@ async def checker():
                                 if submission.id not in checked and key_words:
                                     if updateType:
                                         if eachUser:
-                                            alertUsers.append(eachUser[0].strip())
+                                            if eachUser[1][2] in alertUsers.keys():
+                                                temp = alertUsers[eachUser[1][2]]
+                                                temp.append(eachUser[0].strip())
+                                                alertUsers[eachUser[1][2]] = temp
+                                            else:
+                                                alertUsers[eachUser[1][2]] = [eachUser[0].strip()]
                                             msg = '\n%s related thread: "%s"\n%s in %s' % (title, (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title, submission.shortlink, errorCatch)
                                             hits += 1
                         allmentions = ''
                         checked.append(submission.id)
                         if alertUsers:
-                            for i in alertUsers:
-                                temp = await bot.get_user_info(i)
-                                allmentions += temp.mention + ' '
-                            await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
+                            for i in alertUsers.keys():
+                                if bot.get_channel(i):
+                                    for j in alertUsers[i]:
+                                        temp = await bot.get_user_info(j)
+                                        allmentions += temp.mention + ' '
+                                    await bot.send_message(discord.Object(id=i), allmentions + msg)
+                                    allmentions = ''
+                                else:
+                                    await bot.send_message(discord.User(id=i), allmentions + msg)
                     await asyncio.sleep(4)
                 msg = ''
                 if 'manga' in f:
@@ -461,7 +501,7 @@ async def checker():
                         blacklist_words = any(string in op_title for string in blacklist)
                         if blacklist_words and submission.id not in checked:
                             checked.append(submission.id)
-                        alertUsers = []
+                        alertUsers = {}
                         for eachUser in userFollows.items():
                             for manga in eachUser[1][1].items():
                                 key_words = any(string in op_title for string in manga[1])
@@ -475,16 +515,28 @@ async def checker():
                                 if submission.id not in checked and key_words:
                                     if updateType:
                                         if eachUser:
-                                            alertUsers.append(eachUser[0].strip())
+                                            if eachUser[1][2] in alertUsers.keys():
+                                                temp = alertUsers[eachUser[1][2]]
+                                                temp.append(eachUser[0].strip())
+                                                alertUsers[eachUser[1][2]] = temp
+                                            else:
+                                                alertUsers[eachUser[1][2]] = [eachUser[0].strip()]
                                             msg = '\n%s related thread: "%s"\n%s in %s' % (title, (submission.title[:50] + '..') if len(submission.title) > 50 else submission.title, submission.shortlink, errorCatch)
                                             hits += 1
                         allmentions = ''
                         checked.append(submission.id)
                         if alertUsers:
-                            for i in alertUsers:
-                                temp = await bot.get_user_info(i)
-                                allmentions += temp.mention + ' '
-                            await bot.send_message(discord.Object(id='259921092586504202'), allmentions + msg)
+                            for i in alertUsers.keys():
+                                if bot.get_channel(i):
+                                    for j in alertUsers[i]:
+                                        temp = await bot.get_user_info(j)
+                                        allmentions += temp.mention + ' '
+                                    await bot.send_message(discord.Object(id=i), allmentions + msg)
+                                    await bot.send_message(discord.Object(id='260974991401680908'), msg)
+                                    allmentions = ''
+                                else:
+                                    await bot.send_message(discord.User(id=i), msg)
+                                    await bot.send_message(discord.Object(id='260974991401680908'), msg)
                     await asyncio.sleep(4)
         except Exception as e:
             traceback.print_exc()
@@ -499,5 +551,5 @@ async def on_ready():
     print('-----------')
     await checker()
 
-#bot.loop.create_task(checker())
+bot.loop.create_task(on_ready())
 bot.run('MjYwNjUxNDYxMTgzMTQzOTM4.CzpeGw.pyPh2fEexDvvzJjThlXD5GaXKbw')
