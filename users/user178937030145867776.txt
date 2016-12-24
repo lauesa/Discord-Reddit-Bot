@@ -1,11 +1,12 @@
 178937030145867776
 Notif location: 260318513153966081
 ----Blacklist----
-recommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions
+drifters
 
 ----Anime----
 [All Threads] Kaguya Wants to be Confessed To = kaguya wants to be, kagaya wants to be, kuguya wants to be, kaguya want to be
 [All Threads] One Punch Man = one punch man s2, opm s2, one punch man season 2, opm season 2, one punch man second season, opm second season, second season of opm, second season of one punch man, s2 of one punch man, s2 of opm
+[All Threads] test = a, e, i, o, u, y
 
 ----Manga----
 [Chapters Only] Tomo = tomo chan, tomo-chan

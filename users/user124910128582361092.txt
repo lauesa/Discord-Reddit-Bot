@@ -1,14 +1,14 @@
---disable--174701939580207105
+12491012858236109239580207105
 Notif location: 260318513153966081
 ----Blacklist----
-recommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions
+rem
 
 ----Anime----
-[Episodes Only] Scum's Wish = kuzu no honkai, scums wish, scum's wish
-[All Threads] Little Witch Academia = little witch academia
+[All Threads] Little Witch Academia = little
 [Episodes Only] KonoSuba S2 = kono subarashii sekai ni shukufuku wo, konosuba, shukufuku
 [Episodes Only] Masamune-Kun = masamune-kun no revenge, masamune-kun's revenge
 [Episodes Only] Blue Exorcist S2 = ao no exorcist, blue exorcist
+[All Threads] test = a, e, i, o, u, y
 
 ----Manga----
 [Chapters Only] Tokyo Ghoul Re = tokyo ghoul re, tg:re, tg chapter, tg:re chapter
