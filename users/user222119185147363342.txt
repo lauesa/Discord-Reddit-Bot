@@ -1,0 +1,15 @@
+--disable--222119185147363342
+Notif location: 222119185147363342
+----Blacklist----
+recommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions
+
+----Anime----
+
+----Manga----
+[Chapters Only] Kaguya wants to be Confessed = kaguya wants to be confessed to
+[Chapters Only] One Piece = one piece
+[Chapters Only] Berserk = berserk
+[Chapters Only] Shokugeki no Soma = shokugeki no soma, food wars
+[Chapters Only] Tokyo Ghoul:re = tokyo ghoul, tokyo ghoul:re
+
+----End----

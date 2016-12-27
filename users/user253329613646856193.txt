@@ -1,0 +1,11 @@
+--disable--253329613646856193
+Notif location: 253329613646856193
+----Blacklist----
+recommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions
+
+----Anime----
+[All Threads] keijo = keijo
+
+----Manga----
+
+----End----

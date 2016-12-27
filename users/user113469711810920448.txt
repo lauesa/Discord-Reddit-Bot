@@ -1,0 +1,13 @@
+--disable--113469711810920448
+Notif location: 113469711810920448
+----Blacklist----
+recommend, recommendation, recomend, recommendations, suggest, suggestion, sugest, suggestions
+
+----Anime----
+
+----Manga----
+[Chapters Only] aoki hagane no arpeggio = aoki hagane no arpeggio
+[Chapters Only] akame ga kill = akame ga kill
+[Chapters Only] Keijo = keijo
+
+----End----

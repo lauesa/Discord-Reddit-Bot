@@ -1,22 +1,13 @@
-12491012858236109239580207105
-Notif location: 260318513153966081
+124910128582361092
+Notif location: 259921092586504202
 ----Blacklist----
-rem
+
 
 ----Anime----
-[All Threads] Little Witch Academia = little
-[Episodes Only] KonoSuba S2 = kono subarashii sekai ni shukufuku wo, konosuba, shukufuku
-[Episodes Only] Masamune-Kun = masamune-kun no revenge, masamune-kun's revenge
-[Episodes Only] Blue Exorcist S2 = ao no exorcist, blue exorcist
-[All Threads] test = a, e, i, o, u, y
+[ALL POSTS FROM THIS SUB]
 
 ----Manga----
-[Chapters Only] Tokyo Ghoul Re = tokyo ghoul re, tg:re, tg chapter, tg:re chapter
-[All Threads] Boku no Hero = boku no hero, boku no hero academia, my hero academy, bnha
-[All Threads] The Promised Neverland = the promised neverland, yakusoku no neverland
-[Chapters Only] To You, The Immortal = fumetsu no anata e, to you the immortal, fumetsu no ame, fumetsu no ane, to you, the immortal
-[Chapters Only] Tate No Yuusha = tate no yuusha, rising of the shield hero, shield hero, tate no yuusha no nariagari
-[Chapters Only] Koi to Uso = koi to uso, love and lies, love and lie, lies and love, lie and love
-[All Threads] Kaguya Wants to be Confessed To = kaguya wants to be, kagaya wants to be, kuguya wants to be, kaguya want to be
+[Chapters Only] Henjo = henjo, henjyo, hen na joshi
+[Chapters Only] Suki x Suki = suki x suki, suki suki, sukixsuki
 
 ----End----
