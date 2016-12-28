@@ -62,7 +62,7 @@ async def follow(ctx):
                     await bot.send_message(ctx.message.channel, 'Could not find the user\'s list. They might not be subscribed.')
         else:
             keywords = open('%susers/user%s.txt' % (path, ctx.message.author.id), 'w+')
-            keywords.write(ctx.message.author.id + '\nNotif location: ' + ctx.message.author.id + '\n----Blacklist----\ngore, nsfl\n\n----Anime----\n\n----Manga----\n\n----GameDeals----\n\n----End----')
+            keywords.write(ctx.message.author.id + '\nNotif location: ' + ctx.message.author.id + '\n----Blacklist----\ngore, nsfl\n\n----Anime----\n\n----Manga----\n\n----re_zero----\n\n----gamedeals----\n\n----End----')
             keywords.close()
             await bot.send_message(ctx.message.channel, '**You are now subscribed to the manga/anime notifier feed.** Your following list is empty so use ``ap:add`` to add the manga and anime you want to follow and ``ap:list`` to see your current list. Use ``ap:commands`` for more commands.')
             await bot.send_message(discord.Object(id=config["log_location"]), 'User: ' + str(ctx.message.author) + '\nCmd: ' + str(ctx.message.content))
@@ -280,7 +280,7 @@ async def edit(ctx):
                 await bot.send_message(discord.Object(id=config["log_location"]),
                                        'User: ' + str(ctx.message.author) + '\nCmd: ' + str(ctx.message.content))
             else:
-                await bot.send_message(ctx.message.channel, 'Successfully edited notification type. The entry will trigger for %s now. View your list with ``ap:list``.' % entry)
+                await bot.send_message(ctx.message.channel, '**Could not find the specified entry.**')
                 await bot.send_message(discord.Object(id=config["log_location"]),
                                        'User: ' + str(ctx.message.author) + '\nCmd: ' + str(ctx.message.content))
         except:
@@ -307,7 +307,7 @@ async def addsubreddit(ctx):
                 r = praw.Reddit(client_id=config["reddit_client_id"],
                                 client_secret=config["reddit_client_secret"],
                                 password=config["reddit_password"],
-                                user_agent=config["Discord bot for Reddit related submissions by appu1232"],
+                                user_agent="Discord bot for Reddit related submissions by appu1232",
                                 username=config["reddit_username"])
                 subreddit = r.subreddit(sub.lower())
                 for submission in subreddit.new(limit=2):
@@ -409,8 +409,8 @@ async def addmal(ctx):
 
 @bot.command(pass_context=True)
 async def commands(ctx):
-    await bot.send_message(ctx.message.channel, '\n**Bot commands:**\n\n**__START HERE:__ CREATE A LIST**\n\n``ap:follow`` or ``ap:follow user`` - Subscribe to the bot. This means you can start adding and removing subreddits and keywords for those subreddits. A brand new list has the subreddits: /r/anime, /r/manga, and /r/gamedeals. Optionally, put a person username (doesn\'t have to be a mention) to import their list.\n\n``ap:unfollow`` - Unsubscribe from the bot. You will not receive any more notifications. Warning: this deletes your list.\n\n\n**GET YOUR CURRENT LIST** (will be empty if you just did ap:follow)\n\n``ap:list`` or ``ap:list user`` - Get your current keywords list or seomeone else\'s (doesn\'t have to be a mention).\n\n\n**ADD OR REMOVE SUBREDDITS FROM YOUR LIST**\n\n``ap:addsubreddit subreddit`` - Add a subreddit to your list. Ex: ``ap:addsubreddit worldnews`` **IF you want to get notified on every new post made, do ``ap:addsubreddit -all subreddit``**\n\n``ap:removesubreddit subreddit`` - Remove a subreddit from your list.\n\n**ADD SPECIFIC STUFF TO FOLLOW FROM A SUBREDDIT**\n\n**For all subreddits:**\n``ap:add subreddit title`` or ``ap:add subreddit title = keyword1, keyword2, ...`` - Add a topic to follow. <title> can be anything (if no keywords given then the title will be used as keywords). Add keywords to specify more in case you think it could be posted under different titles (like GTA V vs. Grand Theft Auto V or Boku no Hero Academia vs. My Hero Academia).\n\n**For the anime and manga subreddits specifically:**\nUsing the ``-u`` flag gives allows you to **only get notifications for your topic’s new episode/new manga chapter.** Leave it out to receive all related threads like normal. Ex: ``ap:add anime Little Witch Academia`` gives notifications on all threads related to Little Witch Academia but ``ap:add -u anime Little Witch Academia`` gives notifications only when a new episode comes out (you can still add keywords to either of these).\n\n**IMPORT YOUR MAL CURRENTLY WATCHING/READING TITLES TO FOLLOW**')
-    await bot.send_message(ctx.message.channel, '``ap:addmal anime/manga malusername`` - This will import both your currently watching or currently reading list (based on if you put anime or manga). The entries keywords should be compatible with the episode/chapter threads of Reddit but **if the entry has multiple names you should add it to the entries keywords.** (Kuroko no Basket, Kuroko no Basuke, Kuroko\'s Basketball) Example use: ``ap:addmal manga appu1232`` **Note that all imported anime and manga are set to [Chapters Only].** If needed, you can change an entry to [All Threads] using the ap:edit command (see below). \n\n\n**REMOVING STUFF YOU FOLLOW**\n\n``ap:remove subreddit title`` - Remove the specified title in the subreddit. Ex: ``ap:remove anime Hunter x Hunter``\n\n``ap:edit subreddit title = keyword1, keyword2`` to edit an entry or ``ap:edit +/- anime/manga title`` to set/unset anime/manga title to notify for all threads. Example uses: ``ap:edit + manga Boku no Hero`` or ``ap:edit manga Boku no Hero = my hero academia, boku no hero academia``\n\n\n** BLACKLIST WORDS YOU DON\'T WANT** (i.e. if you have added "fanart" to your list but you don\'t want fanart of a certain character, you would blacklist that character\'s name)\n\n``ap:add blacklist = word1, word2, etc.`` - Add words to your blacklist. Example: ``ap:add blacklist = rem, yuno``\n\n``ap:remove blacklist`` - Remove all words from blacklist.\n\n\n**SET WHERE YOU WANT TO RECIEVE NOTIFICATIONS**\n\n``ap:location dm/channel`` - Where to get notifications. ``dm`` for direct message, ``here`` for current channel or ``#channel_name`` for another channel. Default after you follow is ``dm``\n\n\n**TURN NOTIFIER ON AND OFF**\n\n``ap:off`` - Turn off all notifications for you. Useful if you want to stop notifications temporarily but don\'t want to delete your list.\n\n``ap:on`` - Turn on notifications if off.\n\n\n**OTHER**\n\n``ap:info`` - Get bot info and current settings.')
+    await bot.send_message(ctx.message.channel, '\n**Bot commands:**\n\n**__START HERE:__ CREATE A LIST**\n\n``ap:follow`` or ``ap:follow <user>`` - Subscribe to the bot. This means you can start adding and removing subreddits and keywords for those subreddits. Optionally, put a person username (doesn\'t have to be a mention) to import their list.\n\n``ap:unfollow`` - Unsubscribe from the bot. Warning: this deletes your list.\n\n\n**GET YOUR CURRENT LIST** (will be empty if you just did ap:follow)\n\n``ap:list`` or ``ap:list <user>`` - Get your current keywords list or seomeone else\'s.\n\n\n**ADD OR REMOVE SUBREDDITS FROM YOUR LIST**\n\n``ap:addsubreddit <subreddit>`` - Add a subreddit to your list. Ex: ``ap:addsubreddit worldnews`` **IF you want to get notified on every new post made, do ``ap:addsubreddit -all <subreddit>``**\n\n``ap:removesubreddit <subreddit>`` - Remove a subreddit from your list.\n\n**ADD SPECIFIC KEYWORDS TO FOLLOW FROM A SUBREDDIT**\n\n**For all subreddits:**\n``ap:add <subreddit> <title>`` or ``ap:add <subreddit> <title> = <keywords1>, <keywords2>, ...`` - Add a topic to follow. <title> can be anything (if no keywords given then the title will be used as keywords). Add keywords to specify more in case you think it could be posted under different titles (like GTA V vs. Grand Theft Auto V or Boku no Hero Academia vs. My Hero Academia).\n\n**For the anime and manga subreddits specifically:**\nUsing the ``-u`` flag gives allows you to **only get notifications for your topic’s new episode/new manga chapter.** Leave it out to receive all related threads like normal. Ex: ``ap:add -u anime Little Witch Academia``.\n\n**IMPORT YOUR MAL CURRENTLY WATCHING/READING TITLES TO FOLLOW**')
+    await bot.send_message(ctx.message.channel, '``ap:addmal <anime/manga> <malusername>`` - This will import the airing/publishing anime/manga from your currently watching or currently reading list (based on if you put anime or manga). The entries keywords should be compatible with the episode/chapter threads of Reddit but **if the entry has multiple names you should add it to the entries keywords using ap:edit.** Example use: ``ap:addmal manga appu1232`` **Note that all imported anime and manga are set to [Chapters Only].** If needed, you can change an entry to [All Threads] using the ap:edit command (see below). \n\n\n**REMOVING STUFF YOU FOLLOW**\n\n``ap:remove <subreddit> <title>`` - Remove the specified title in the subreddit. Ex: ``ap:remove anime Hunter x Hunter``\n\n``ap:edit <subreddit> <title> = <keyword1>, <keyword2>, ...`` to edit an entry or ``ap:edit +/- <anime/manga> <title>`` to set/unset anime/manga title to notify for all threads. Example uses: ``ap:edit + manga Boku no Hero`` or ``ap:edit manga Boku no Hero = my hero academia, boku no hero academia``\n\n\n** BLACKLIST WORDS YOU DON\'T WANT** (i.e. if you have added "fanart" to your list but you don\'t want fanart of a certain character, you would blacklist that character\'s name)\n\n``ap:add blacklist = <word1>, <word2>, ...`` - Add words to your blacklist. Example: ``ap:add blacklist = rem, yuno``\n\n``ap:remove blacklist`` - Remove all words from blacklist.\n\n\n**SET WHERE YOU WANT TO RECIEVE NOTIFICATIONS**\n\n``ap:location <dm/channel>`` - Where to get notifications. ``dm`` for direct message, ``here`` for current channel or ``#channel_name`` for another channel. Default after you follow is ``dm``\n\n\n**TURN NOTIFIER ON AND OFF**\n\n``ap:off`` - Turn off all notifications for you. Useful if you want to stop notifications temporarily but don\'t want to delete your list.\n\n``ap:on`` - Turn on notifications if off.\n\n\n**OTHER**\n\n``ap:info`` - Get bot info and current settings.')
     await bot.send_message(discord.Object(id=config["log_location"]), 'User: ' + str(ctx.message.author) + '\nCmd: ' + str(ctx.message.content))
 
 @bot.command(pass_context=True)
@@ -461,11 +461,11 @@ async def malImport(word, user, malUser):
         for i in allList:
             result = spice.search_id(i, spice.get_medium(word), creds)
             await asyncio.sleep(2)
-            if result.title != '' and result.english != '' and result.title != result.english:
-                allwatch.append(result.title + ' = ' + result.title + ', ' + result.english)
-            else:
-                allwatch.append(result.title)
-            print(result.title)
+            if result.status == 'Publishing' or result.status == 'Currently Airing':
+                if result.title != '' and result.english != '' and result.title != result.english:
+                    allwatch.append(result.title + ' = ' + result.title + ', ' + result.english)
+                else:
+                    allwatch.append(result.title)
         for title in allwatch:
             addKeyWords('-u ' + word + ' ' + title, user)
         return True
@@ -498,8 +498,6 @@ def editEntry(word, user):
     userData = open('%susers/user%s.txt' % (path, user), 'rU')
     data = userData.readlines()
     userData.close()
-    if title2 == '' or keys == '':
-        return False
     for i, d in enumerate(data):
         if '----' in d:
             if aorm.lower() in d.lower():
@@ -529,9 +527,6 @@ def editEntry(word, user):
             userData = open('%susers/user%s.txt' % (path, user), 'w')
             userData.writelines(data)
             userData.close()
-    else:
-        userData.close()
-        return False
     return entry
 
 
@@ -671,7 +666,7 @@ async def checker():
             r = praw.Reddit(client_id=config["reddit_client_id"],
                                  client_secret=config["reddit_client_secret"],
                                  password=config["reddit_password"],
-                                 user_agent=config["Discord bot for Reddit related submissions by appu1232"],
+                                 user_agent="Discord bot for Reddit related submissions by appu1232",
                                  username=config["reddit_username"])
             while True:
                 checked = []
@@ -743,7 +738,7 @@ async def checker():
                     checked = checked[40 * ((len(checkSubs) // 2) + 1):]
                 for count, eachSub in enumerate(checkSubs):
                     links = r.subreddit(eachSub)
-                    for submission in links.new(limit=5):
+                    for submission in links.new(limit=8):
                         if submission.id in checked:
                             continue
                         op_title = submission.title.lower()
