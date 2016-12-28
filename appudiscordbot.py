@@ -330,6 +330,8 @@ async def addsubreddit(ctx):
                 userData.writelines(data)
                 userData.close()
                 await bot.send_message(ctx.message.channel, 'Successfully added subreddit ``%s`` to your list. Now start adding keywords to it. View your list with ``ap:list`` and view all the commands with detailed info with ``ap:commands``' % sub)
+                await bot.send_message(discord.Object(id=config["log_location"]),
+                                       'User: ' + str(ctx.message.author) + '\nCmd: ' + str(ctx.message.content))
             except:
                 await bot.send_message(ctx.message.channel, '**Invalid subreddit.** reddit.com/r/%s doesn\'t seem to exist or is a private sub.' % sub)
     else:
@@ -356,6 +358,8 @@ async def removesubreddit(ctx):
             userData.writelines(data)
             userData.close()
             await bot.send_message(ctx.message.channel, 'Successfully removed subreddit ``%s`` from your list.' % sub)
+            await bot.send_message(discord.Object(id=config["log_location"]),
+                                   'User: ' + str(ctx.message.author) + '\nCmd: ' + str(ctx.message.content))
         else:
             await bot.send_message(ctx.message.channel, '**Could not find the subreddit ``%s`` in your list** View your list with ``ap:list`` to see what subreddits are there.' % sub)
 
@@ -374,6 +378,9 @@ async def addmal(ctx):
                         await bot.send_message(ctx.message.channel, 'Fetching your MAL currently watching entries... This may take a minute or two, I\'ll ping you when I\'m done. :)')
                         await malImport('anime', ctx.message.author.id, maluser)
                         await bot.send_message(ctx.message.channel, '%s Successfully imported your watching anime from your MAL. View your list with ``ap:list``' % ctx.message.author.mention)
+                        await bot.send_message(discord.Object(id=config["log_location"]),
+                                               'User: ' + str(ctx.message.author) + '\nCmd: ' + str(
+                                                   ctx.message.content))
                     else:
                         await bot.send_message(ctx.message.channel, '**Error, you don\'t seem to have the anime subreddit in your list. Add it with ``ap:addsubreddit anime`` and try again.')
                     pass
@@ -383,6 +390,9 @@ async def addmal(ctx):
                         await bot.send_message(ctx.message.channel, 'Fetching your MAL currently reading entries... This may take a minute or two, I\'ll ping you when I\'m done. :)')
                         await malImport('manga', ctx.message.author.id, maluser)
                         await bot.send_message(ctx.message.channel, '%s Successfully imported your watching manga from your MAL. View your list with ``ap:list``' % ctx.message.author.mention)
+                        await bot.send_message(discord.Object(id=config["log_location"]),
+                                               'User: ' + str(ctx.message.author) + '\nCmd: ' + str(
+                                                   ctx.message.content))
                     else:
                         await bot.send_message(ctx.message.channel, '**Error, you don\'t seem to have the manga subreddit in your list. Add it with ``ap:addsubreddit manga`` and try again.')
                 else:
@@ -402,6 +412,12 @@ async def commands(ctx):
     await bot.send_message(ctx.message.channel, '\n**Bot commands:**\n\n**__START HERE:__ CREATE A LIST**\n\n``ap:follow`` or ``ap:follow user`` - Subscribe to the bot. This means you can start adding and removing subreddits and keywords for those subreddits. A brand new list has the subreddits: /r/anime, /r/manga, and /r/gamedeals. Optionally, put a person username (doesn\'t have to be a mention) to import their list.\n\n``ap:unfollow`` - Unsubscribe from the bot. You will not receive any more notifications. Warning: this deletes your list.\n\n\n**GET YOUR CURRENT LIST** (will be empty if you just did ap:follow)\n\n``ap:list`` or ``ap:list user`` - Get your current keywords list or seomeone else\'s (doesn\'t have to be a mention).\n\n\n**ADD OR REMOVE SUBREDDITS FROM YOUR LIST**\n\n``ap:addsubreddit subreddit`` - Add a subreddit to your list. Ex: ``ap:addsubreddit worldnews`` **IF you want to get notified on every new post made, do ``ap:addsubreddit -all subreddit``**\n\n``ap:removesubreddit subreddit`` - Remove a subreddit from your list.\n\n**ADD SPECIFIC STUFF TO FOLLOW FROM A SUBREDDIT**\n\n**For all subreddits:**\n``ap:add subreddit title`` or ``ap:add subreddit title = keyword1, keyword2, ...`` - Add a topic to follow. <title> can be anything (if no keywords given then the title will be used as keywords). Add keywords to specify more in case you think it could be posted under different titles (like GTA V vs. Grand Theft Auto V or Boku no Hero Academia vs. My Hero Academia).\n\n**For the anime and manga subreddits specifically:**\nUsing the ``-u`` flag gives allows you to **only get notifications for your topic’s new episode/new manga chapter.** Leave it out to receive all related threads like normal. Ex: ``ap:add anime Little Witch Academia`` gives notifications on all threads related to Little Witch Academia but ``ap:add -u anime Little Witch Academia`` gives notifications only when a new episode comes out (you can still add keywords to either of these).\n\n**IMPORT YOUR MAL CURRENTLY WATCHING/READING TITLES TO FOLLOW**')
     await bot.send_message(ctx.message.channel, '``ap:addmal anime/manga malusername`` - This will import both your currently watching or currently reading list (based on if you put anime or manga). The entries keywords should be compatible with the episode/chapter threads of Reddit but **if the entry has multiple names you should add it to the entries keywords.** (Kuroko no Basket, Kuroko no Basuke, Kuroko\'s Basketball) Example use: ``ap:addmal manga appu1232`` **Note that all imported anime and manga are set to [Chapters Only].** If needed, you can change an entry to [All Threads] using the ap:edit command (see below). \n\n\n**REMOVING STUFF YOU FOLLOW**\n\n``ap:remove subreddit title`` - Remove the specified title in the subreddit. Ex: ``ap:remove anime Hunter x Hunter``\n\n``ap:edit subreddit title = keyword1, keyword2`` to edit an entry or ``ap:edit +/- anime/manga title`` to set/unset anime/manga title to notify for all threads. Example uses: ``ap:edit + manga Boku no Hero`` or ``ap:edit manga Boku no Hero = my hero academia, boku no hero academia``\n\n\n** BLACKLIST WORDS YOU DON\'T WANT** (i.e. if you have added "fanart" to your list but you don\'t want fanart of a certain character, you would blacklist that character\'s name)\n\n``ap:add blacklist = word1, word2, etc.`` - Add words to your blacklist. Example: ``ap:add blacklist = rem, yuno``\n\n``ap:remove blacklist`` - Remove all words from blacklist.\n\n\n**SET WHERE YOU WANT TO RECIEVE NOTIFICATIONS**\n\n``ap:location dm/channel`` - Where to get notifications. ``dm`` for direct message, ``here`` for current channel or ``#channel_name`` for another channel. Default after you follow is ``dm``\n\n\n**TURN NOTIFIER ON AND OFF**\n\n``ap:off`` - Turn off all notifications for you. Useful if you want to stop notifications temporarily but don\'t want to delete your list.\n\n``ap:on`` - Turn on notifications if off.\n\n\n**OTHER**\n\n``ap:info`` - Get bot info and current settings.')
     await bot.send_message(discord.Object(id=config["log_location"]), 'User: ' + str(ctx.message.author) + '\nCmd: ' + str(ctx.message.content))
+
+@bot.command(pass_context=True)
+async def info(ctx):
+    run = run = open('current_run.txt', 'r')
+    info = run.readlines()
+    await bot.send_message(ctx.message.channel, currentRun(info[0], info[1], info[2], info[3]))
 
 start_time = time.time()
 tz = pytz.timezone('US/Eastern')
@@ -423,11 +439,7 @@ def currentRun(allcheck, hits, notifssent, loops):
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
-    temp = open('settings.txt', 'r').readlines()
-    currRun = '```Bot has been running for: %s days, %s hours, %s minutes, and %s seconds\n\nLinks checked: %s\nHits: %s\nNotifications sent: %s\nItterations without fail: %s\nCurrent settings:\n' % (int(days), int(hours), int(minutes), int(seconds), allcheck, hits, notifssent, loops)
-    for i in temp:
-        currRun += '    ' + i
-    currRun += '\n\n' + 'Available settings: anime, manga (more coming soon)```'
+    currRun = '```Bot has been running for: %s days, %s hours, %s minutes, and %s seconds\n\nLinks checked: %s\nHits: %s\nNotifications sent: %s\nItterations without fail: %s```' % (int(days), int(hours), int(minutes), int(seconds), allcheck, hits, notifssent, loops)
     return currRun
 
 def subredditExists(word, user):
@@ -641,12 +653,6 @@ def removeKeyWords(word, user):
     userData.close()
     return False
 
-@bot.command(pass_context=True)
-async def info(ctx):
-    run = run = open('current_run.txt', 'r')
-    info = run.readlines()
-    await bot.send_message(ctx.message.channel, currentRun(info[0], info[1], info[2], info[3]))
-
 async def checker():
     loopCount = 0
     allcheckcount = 0
@@ -820,6 +826,7 @@ async def checker():
             failCount = 0
         except Exception as e:
             traceback.print_exc()
+            loopCount = 0
             failCount += 1
             pass
 
