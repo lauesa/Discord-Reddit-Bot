@@ -1,9 +1,10 @@
 124910128582361092
-Notif location: 124910128582361092
+Notif location: 261666461666377738
 ----Blacklist----
 gore, nsfl
 
 ----Anime----
+[Episodes Only] Haikyuu!! = haikyuu!!, haikyu!!
 
 ----Manga----
 [Chapters Only] Fairy Tail = fairy tail

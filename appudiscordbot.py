@@ -307,13 +307,13 @@ async def addsubreddit(ctx):
                 r = praw.Reddit(client_id=config["reddit_client_id"],
                                 client_secret=config["reddit_client_secret"],
                                 password=config["reddit_password"],
-                                user_agent=config["reddit_user_agent"],
+                                user_agent=config["Discord bot for Reddit related submissions by appu1232"],
                                 username=config["reddit_username"])
                 subreddit = r.subreddit(sub.lower())
                 for submission in subreddit.new(limit=2):
                     pass
-                afds = open('%susers/user%s.txt' % (path, ctx.message.author.id), 'r+')
-                data = afds.readlines()
+                userData = open('%susers/user%s.txt' % (path, ctx.message.author.id), 'r+')
+                data = userData.readlines()
                 totalSubs = 0
                 for i in data:
                     if '----' in i:
@@ -321,14 +321,14 @@ async def addsubreddit(ctx):
                 if totalSubs > 22:
                     await bot.send_message(ctx.message.channel, 'Sorry, you have reached your subreddit limit of 20! D: The notifier will slow down considerably without a hard cap on number of subreddits so please delete a subreddit and try again.')
                     return
-                afds.seek(0)
-                afds.truncate()
+                userData.seek(0)
+                userData.truncate()
                 if allposts == True:
                     data[len(data) - 2] = '\n----%s----' % sub.lower() + '\n' + '[ALL POSTS FROM THIS SUB]' + '\n' + data[len(data) - 2]
                 else:
                     data[len(data)-2] = '\n----%s----' % sub.lower() + '\n' + data[len(data)-2]
-                afds.writelines(data)
-                afds.close()
+                userData.writelines(data)
+                userData.close()
                 await bot.send_message(ctx.message.channel, 'Successfully added subreddit ``%s`` to your list. Now start adding keywords to it. View your list with ``ap:list`` and view all the commands with detailed info with ``ap:commands``' % sub)
             except:
                 await bot.send_message(ctx.message.channel, '**Invalid subreddit.** reddit.com/r/%s doesn\'t seem to exist or is a private sub.' % sub)
@@ -341,8 +341,8 @@ async def removesubreddit(ctx):
     sub = ctx.message.content.split('removesubreddit', 1)[1].strip()
     if sub:
         if subredditExists(sub, ctx.message.author.id):
-            afds = open('%susers/user%s.txt' % (path, ctx.message.author.id), 'r+')
-            data = afds.readlines()
+            userData = open('%susers/user%s.txt' % (path, ctx.message.author.id), 'r+')
+            data = userData.readlines()
             for i, d in enumerate(data):
                 if '----%s----' % sub.lower() in d.lower() and '----Blacklist----' not in d and '----End----' not in d:
                     c = 0
@@ -351,10 +351,10 @@ async def removesubreddit(ctx):
                         data[i + c] = ''
                         c += 1
                     data[i+c] = ''
-            afds.seek(0)
-            afds.truncate()
-            afds.writelines(data)
-            afds.close()
+            userData.seek(0)
+            userData.truncate()
+            userData.writelines(data)
+            userData.close()
             await bot.send_message(ctx.message.channel, 'Successfully removed subreddit ``%s`` from your list.' % sub)
         else:
             await bot.send_message(ctx.message.channel, '**Could not find the subreddit ``%s`` in your list** View your list with ``ap:list`` to see what subreddits are there.' % sub)
@@ -431,9 +431,9 @@ def currentRun(allcheck, hits, notifssent, loops):
     return currRun
 
 def subredditExists(word, user):
-    afds = open('%susers/user%s.txt' % (path, user), 'r')
-    data = afds.readlines()
-    afds.close()
+    userData = open('%susers/user%s.txt' % (path, user), 'r')
+    data = userData.readlines()
+    userData.close()
     word = '----' + word.lower()
     for i in data:
         if word in i.lower():
@@ -461,6 +461,8 @@ async def malImport(word, user, malUser):
         pass
 
 def editEntry(word, user):
+    title = ''
+    keys = ''
     if word.startswith('+'):
             mode = 0
             aorm = word.split(' ', 2)[1].strip()
@@ -481,9 +483,11 @@ def editEntry(word, user):
         keys = title.split('=', 1)[1].lower().strip()
     if keys.endswith(','):
         keys = keys[:-1]
-    afds = open('%susers/user%s.txt' % (path, user), 'rU')
-    data = afds.readlines()
-    afds.close()
+    userData = open('%susers/user%s.txt' % (path, user), 'rU')
+    data = userData.readlines()
+    userData.close()
+    if title2 == '' or keys == '':
+        return False
     for i, d in enumerate(data):
         if '----' in d:
             if aorm.lower() in d.lower():
@@ -510,35 +514,34 @@ def editEntry(word, user):
                 if mode == 2:
                     data[i + c] = data[i + c].split(' = ')[0] + ' = ' + keys + '\n'
                     entry = '``%s``' % data[i + c].strip()
-            afds = open('%susers/user%s.txt' % (path, user), 'w')
-            afds.writelines(data)
-            afds.close()
+            userData = open('%susers/user%s.txt' % (path, user), 'w')
+            userData.writelines(data)
+            userData.close()
     else:
-        afds.close()
+        userData.close()
         return False
     return entry
 
 
 def listKeyWords(msg):
-    kw = open('%susers/user%s.txt' % (path, msg), 'rU')
+    userData = open('%susers/user%s.txt' % (path, msg), 'rU')
     msg = ''
-    kw.readline()
-    kw.readline()
-    kw2 = kw.read()
-    part = int(math.ceil(len(kw2) / 1900))
-    kw4 = [kw2[i:i+1900] for i in range(0, len(kw2), 1900)]
+    userData.readline()
+    userData.readline()
+    userList = userData.read()
+    part = int(math.ceil(len(userList) / 1900))
+    splitList = [userList[i:i+1900] for i in range(0, len(userList), 1900)]
     allWords = []
-    for i,blocks in enumerate(kw4):
+    for i,blocks in enumerate(splitList):
         msg += 'List of keywords: %s of %s\n' % (i+1, part)
         for b in blocks.split('\n'):
             msg += b + '\n'
         allWords.append(msg)
         msg = ''
-    kw.close()
+    userData.close()
     return allWords
 
 def addKeyWords(word, user):
-    afds = open('%susers/user%s.txt' % (path, user), 'rU')
     title = ''
     keys = ''
     if word.lower().startswith('blacklist'):
@@ -574,8 +577,9 @@ def addKeyWords(word, user):
             title2 = title.split('=', 1)[0].strip()
             keys = title.split('=', 1)[1].lower().strip()
         keys = keys.rstrip(',')
-        data = afds.readlines()
-        afds.close()
+        userData = open('%susers/user%s.txt' % (path, user), 'rU')
+        data = userData.readlines()
+        userData.close()
         if title2 == '' or keys == '':
             return False
         for i,d in enumerate(data):
@@ -593,11 +597,10 @@ def addKeyWords(word, user):
                             else:
                                 title2 = '[Chapters Only] ' + title2
                     data[i+c] = title2 + ' = ' + keys + '\n' + data[i+c]
-                    afds = open('%susers/user%s.txt' % (path, user), 'w')
-                    afds.writelines(data)
-                    afds.close()
+                    userData = open('%susers/user%s.txt' % (path, user), 'w')
+                    userData.writelines(data)
+                    userData.close()
                     return True
-    afds.close()
     return False
 
 def removeKeyWords(word, user):
@@ -610,11 +613,11 @@ def removeKeyWords(word, user):
         userlist.writelines(data)
         userlist.close()
         return 'blacklist'
-    afds = open('%susers/user%s.txt' % (path, user), 'r')
+    userData = open('%susers/user%s.txt' % (path, user), 'r')
     aorm = word.split(' ', 1)[0].strip()
     title = word.split(' ', 1)[1].strip()
-    data = afds.readlines()
-    afds.close()
+    data = userData.readlines()
+    userData.close()
     for i,d in enumerate(data):
         if '----' in d:
             if aorm.lower() in d.lower():
@@ -630,12 +633,12 @@ def removeKeyWords(word, user):
                     else:
                         line = data[i + c].lower().split(' = ', 1)[0].strip()
                 data[i+c] = ''
-                afds = open('%susers/user%s.txt' % (path, user), 'w')
-                afds.truncate()
-                afds.writelines(data)
-                afds.close()
+                userData = open('%susers/user%s.txt' % (path, user), 'w')
+                userData.truncate()
+                userData.writelines(data)
+                userData.close()
                 return True
-    afds.close()
+    userData.close()
     return False
 
 @bot.command(pass_context=True)
@@ -657,12 +660,12 @@ async def checker():
             with(open('config.json', 'r')) as f:
                 config = json.load(f)
             if failCount > 5:
-                time.sleep(30)
+                await asyncio.sleep(30)
             #traceback.print_exc()
             r = praw.Reddit(client_id=config["reddit_client_id"],
                                  client_secret=config["reddit_client_secret"],
                                  password=config["reddit_password"],
-                                 user_agent=config["reddit_user_agent"],
+                                 user_agent=config["Discord bot for Reddit related submissions by appu1232"],
                                  username=config["reddit_username"])
             while True:
                 checked = []
@@ -725,9 +728,7 @@ async def checker():
                                 allSubreddits[sub] = subreddit
                                 subreddit = {}
                     userFollows[currUser] = [allSubreddits, notif, blacklist]
-                settings = open('settings.txt', 'r')
                 msg = ''
-                settings.close()
                 checkSubs = []
                 for eachUser in userFollows.items():
                     for allTemp in eachUser[1][0].items():
@@ -736,7 +737,7 @@ async def checker():
                     checked = checked[40 * ((len(checkSubs) // 2) + 1):]
                 for count, eachSub in enumerate(checkSubs):
                     links = r.subreddit(eachSub)
-                    for submission in links.new(limit=8):
+                    for submission in links.new(limit=5):
                         if submission.id in checked:
                             continue
                         op_title = submission.title.lower()
@@ -758,9 +759,9 @@ async def checker():
                                     allPosts = False
                                 key_words = any(string in wordInTitle for string in sub[1])
                                 updateType = True
-                                if sub[0] == 'anime':
+                                if eachSub == 'anime':
                                     aorm = 0
-                                elif sub[0] == 'manga':
+                                elif eachSub == 'manga':
                                     aorm = 1
                                 else:
                                     aorm = 2
@@ -781,13 +782,14 @@ async def checker():
                                                 alertUsers[eachUser[1][1]] = temp
                                             else:
                                                 alertUsers[eachUser[1][1]] = [eachUser[0].strip()]
-                                            if allPosts == True:
+                                            if allPosts == False:
                                                 msg = '\n%s related thread: "%s"\n%s in %s' % (title, (submission.title[:400] + '..') if len(submission.title) > 400 else submission.title, submission.shortlink, '/r/' + eachSub)
                                             else:
                                                 msg = '\n%s thread: "%s"\n%s in %s' % (title, (
                                                 submission.title[:400] + '..') if len(
                                                     submission.title) > 400 else submission.title, submission.shortlink,
                                                                                                '/r/' + eachSub)
+                                            allPosts = False
                                             notifssent += 1
                         allmentions = ''
                         checked.append(submission.id)
