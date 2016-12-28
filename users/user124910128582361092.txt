@@ -1,13 +1,15 @@
 124910128582361092
-Notif location: 259921092586504202
+Notif location: 124910128582361092
 ----Blacklist----
-
+gore, nsfl
 
 ----Anime----
-[ALL POSTS FROM THIS SUB]
 
 ----Manga----
-[Chapters Only] Henjo = henjo, henjyo, hen na joshi
-[Chapters Only] Suki x Suki = suki x suki, suki suki, sukixsuki
+[Chapters Only] Fairy Tail = fairy tail
+[Chapters Only] Deadman Wonderland = deadman wonderland
+[Chapters Only] One Piece = one piece
+
+----GameDeals----
 
 ----End----
