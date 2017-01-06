@@ -789,7 +789,7 @@ async def checker():
                                             title = sub[0][16:]
                                     else:
                                         title = sub[0][14:]
-                                if submission.id not in checked and key_words:
+                                if submission.id not in checked and (key_words or allPosts) and not blacklist_words:
                                     if updateType:
                                         if eachUser:
                                             if eachUser[1][1] in alertUsers.keys():
@@ -810,19 +810,21 @@ async def checker():
                         allmentions = ''
                         checked.append(submission.id)
                         if alertUsers:
+                            totalmentions = ''
                             for i in alertUsers.keys():
                                 if i == '265882068733394945':
                                     await bot.send_message(discord.Object(id=i), msg)
                                 elif bot.get_channel(i):
                                     for j in alertUsers[i]:
                                         temp = await bot.get_user_info(j)
+                                        totalmentions += str(temp) + ' '
                                         allmentions += temp.mention + ' '
                                     await bot.send_message(discord.Object(id=i), allmentions + msg)
                                     allmentions = ''
                                 else:
                                     await bot.send_message(discord.User(id=i), msg)
                             hits += 1
-                            await bot.send_message(discord.Object(id=config["log_location"]), msg)
+                            await bot.send_message(discord.Object(id=config["log_location"]), 'Users: %s \n%s' % (totalmentions, msg))
                     if count % 2 == 0:
                         await asyncio.sleep(1)
                 run = open('current_run.txt', 'w')
