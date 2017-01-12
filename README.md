@@ -10,6 +10,28 @@ A discord bot that notifies users when a thread with certain keywords is posted 
 - Option to recieve notifications on all new posts on a subreddit.
 - Set where to recieve notifications. Default to direct messages but can be set to a certain channel if you so choose.
 
+## Running the bot:
+
+Python 3.5.2 or higher is required to run this bot. I am fine with hosting the bot and just inviting my instance to other servers but if someone wants to, they can create their own instance of the bot. The config.json file (the values are empty for the one on here) can be configured. You will need a [reddit app](https://www.reddit.com/prefs/apps/) api token/secret and client id, a [discord bot](https://discordapp.com/developers/applications/me) token/secret and client id, and a myanimelist username and password (just to log in and search mal, you can give your MAL account for this). The `log_location` is the channel id where you want to see all the commands used on the bot. Set your discord to developer mode and right click on the channel > copy id to get the id.
+
+* conf.json:
+
+```json
+{
+	"path": "/path/to/bot/",
+	"bot_token": "discord_bot_token",
+	"log_location": "channel_id",
+	"reddit_client_id": "reddit_id",
+	"reddit_client_secret": "reddit_secret",
+	"reddit_username": "reddit_username (the one that you used to create the id and secret)",
+	"reddit_password": "reddit_password",
+	"mal_username": "username",
+	"mal_password": "password"
+}
+```
+
+Run the bot with ``python loopappu.py``. Additionally, this lets the bot auto-restart if it ever crashes. ``python appudiscordbot.py`` will aso work but the bot will not auto-restart.
+
 ## First step:
 
 * No one has a list by default. In order to make a list, a user must do `ap:follow` or `ap:follow <discorduser>` to import that discord user's list.
@@ -57,25 +79,5 @@ A discord bot that notifies users when a thread with certain keywords is posted 
 
 * `ap:commands` - Get all commands and info for each command.
 
-
-## Bot hosting:
-
-I am fine with hosting the bot and just inviting my instance to other servers but if someone wants to, they can create their own instance of the bot. The config.json file (the values are empty for the one on here) can be configured. You will need a [reddit app](https://www.reddit.com/prefs/apps/) api token/secret and client id, a [discord bot](https://discordapp.com/developers/applications/me) token/secret and client id, and a myanimelist username and password (just to log in and search mal, you can give your MAL account for this). The `log_location` is the channel id where you want to see all the commands used on the bot. Set your discord to developer mode and right click on the channel > copy id to get the id.
-
-* conf.json:
-
-```json
-{
-	"path": "/path/to/bot/",
-	"bot_token": "discord_bot_token",
-	"log_location": "channel_id",
-	"reddit_client_id": "reddit_id",
-	"reddit_client_secret": "reddit_secret",
-	"reddit_username": "reddit_username (the one that you used to create the id and secret)",
-	"reddit_password": "reddit_password",
-	"mal_username": "username",
-	"mal_password": "password"
-}
-```
 
 That's it! If you have any questions/suggestions or just need some help running/using the bot, you can message me on discord as appu1232#2569, on reddit as /u/appu1232, or on MyAnimeList as appu1232 (see a pattern?). I will try to get back to you as soon as I can. Thanks and hope you find this bot useful too! :)
