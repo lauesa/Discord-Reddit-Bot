@@ -18,15 +18,15 @@ Python 3.5.2 or higher is required to run this bot. I am fine with hosting the b
 
 ```json
 {
-	"path": "/path/to/bot/",
-	"bot_token": "discord_bot_token",
-	"log_location": "channel_id",
-	"reddit_client_id": "reddit_id",
-	"reddit_client_secret": "reddit_secret",
-	"reddit_username": "reddit_username (the one that you used to create the id and secret)",
-	"reddit_password": "reddit_password",
-	"mal_username": "username",
-	"mal_password": "password"
+	"path": "",
+	"bot_token": "",
+	"log_location": "",
+	"reddit_client_id": "",
+	"reddit_client_secret": "",
+	"reddit_username": "",
+	"reddit_password": "",
+	"mal_username": "",
+	"mal_password": ""
 }
 ```
 
