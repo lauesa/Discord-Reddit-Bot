@@ -157,11 +157,62 @@ async def off(ctx):
         f = open('%susers/user%s.txt' % (path, ctx.message.author.id), 'r+')
         content = f.read()
         f.seek(0)
-        f.write('--disable--' + content)
+        if content.startswith('--disable--'):
+            f.write(content)
+        else:
+            f.write('--disable--' + content)
         f.close()
         await bot.send_message(ctx.message.channel, 'Notifications have been disabled for you. Use ``ap:on`` to enable notifications.')
         await bot.send_message(discord.Object(id=config["log_location"]),
                                'User: ' + str(ctx.message.author) + '\nCmd: ' + str(ctx.message.content))
+
+
+@bot.group(pass_context=True)
+async def ping(ctx):
+    if ctx.invoked_subcommand is None:
+        await bot.send_message(ctx.message.channel, 'Command use: ``ap:ping off`` to disable pinging you on notifications. ``ap:ping on`` to enable. Make sure your location is not set to DM if you choose to disable pings.')
+        return
+
+@ping.command(pass_context=True)
+async def on(ctx):
+    if not isFollowing(ctx.message.author.id):
+        await bot.send_message(ctx.message.channel, 'Use ``ap:follow`` first to subscribe to the bot. Do ``ap:commands`` for more help')
+    else:
+        f = open('%susers/user%s.txt' % (path, ctx.message.author.id), 'r+')
+        content = f.read()
+        f.seek(0)
+        if content.startswith('--disable--off'):
+            f.write('--disable--' + content[14:])
+        elif content.startswith('off'):
+            f.write(content[3:])
+        else:
+            f.write(content)
+        f.close()
+        await bot.send_message(ctx.message.channel, 'The bot will ping you on every message. Do ``ap:ping off`` to reverse this.')
+        await bot.send_message(discord.Object(id=config["log_location"]),
+                               'User: ' + str(ctx.message.author) + '\nCmd: ' + str(ctx.message.content))
+
+@ping.command(pass_context=True)
+async def off(ctx):
+    if not isFollowing(ctx.message.author.id):
+        await bot.send_message(ctx.message.channel, 'Use ``ap:follow`` first to subscribe to the bot. Do ``ap:commands`` for more help')
+    else:
+        f = open('%susers/user%s.txt' % (path, ctx.message.author.id), 'r+')
+        content = f.read()
+        f.seek(0)
+        if content.startswith('--disable--off'):
+            f.write(content)
+        elif content.startswith('off'):
+            f.write(content)
+        elif content.startswith('--disable--'):
+            f.write('--disable--off' + content[11:])
+        else:
+            f.write('off' + content)
+        f.close()
+        await bot.send_message(ctx.message.channel, 'The bot will no longer ping you on every message. Do ``ap:ping on`` to reverse this.')
+        await bot.send_message(discord.Object(id=config["log_location"]),
+                               'User: ' + str(ctx.message.author) + '\nCmd: ' + str(ctx.message.content))
+
 
 @bot.command(pass_context=True)
 async def list(ctx):
@@ -693,6 +744,11 @@ async def checker():
                         str1 = stuff.readline()
                         if '--disable--' in str1:
                             continue
+                        if str1.startswith('off'):
+                            ping = False
+                            str1 = str1[3:]
+                        else:
+                            ping = True
                         currUser = str1.strip()
                         str1 = stuff.readline()
                         while str1 != '':
@@ -730,7 +786,7 @@ async def checker():
                                 subreddit[sub] = keyWords
                                 allSubreddits[sub] = subreddit
                                 subreddit = {}
-                    userFollows[currUser] = [allSubreddits, notif, blacklist]
+                    userFollows[currUser] = [allSubreddits, notif, blacklist, ping]
                 msg = ''
                 checkSubs = []
                 for eachUser in userFollows.items():
@@ -818,7 +874,8 @@ async def checker():
                                     for j in alertUsers[i]:
                                         temp = await bot.get_user_info(j)
                                         totalmentions += str(temp) + ' '
-                                        allmentions += temp.mention + ' '
+                                        if userFollows[j][3]:
+                                            allmentions += temp.mention + ' '
                                     await bot.send_message(discord.Object(id=i), allmentions + msg)
                                     allmentions = ''
                                 else:
