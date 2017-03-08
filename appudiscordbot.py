@@ -797,7 +797,7 @@ async def checker():
                 for count, eachSub in enumerate(checkSubs):
                     links = r.subreddit(eachSub)
                     for submission in links.new(limit=8):
-                        if submission.id in checked or submission:
+                        if submission.id in checked:
                             continue
                         op_title = submission.title.lower()
                         wordInTitle = op_title.split(' ')
