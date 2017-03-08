@@ -792,12 +792,12 @@ async def checker():
                 for eachUser in userFollows.items():
                     for allTemp in eachUser[1][0].items():
                         checkSubs.append(allTemp[0])
-                if len(checked) >= 80 * ((len(checkSubs) // 2) + 1):
-                    checked = checked[40 * ((len(checkSubs) // 2) + 1):]
+                if len(checked) >= 8000 * ((len(checkSubs) // 2) + 1):
+                    checked = checked[4000 * ((len(checkSubs) // 2) + 1):]
                 for count, eachSub in enumerate(checkSubs):
                     links = r.subreddit(eachSub)
                     for submission in links.new(limit=8):
-                        if submission.id in checked:
+                        if submission.id in checked or submission:
                             continue
                         op_title = submission.title.lower()
                         wordInTitle = op_title.split(' ')
@@ -868,20 +868,27 @@ async def checker():
                         if alertUsers:
                             totalmentions = ''
                             for i in alertUsers.keys():
-                                if i == '265882068733394945':
-                                    await bot.send_message(discord.Object(id=i), msg)
-                                elif bot.get_channel(i):
+                                if bot.get_channel(i):
                                     for j in alertUsers[i]:
                                         temp = await bot.get_user_info(j)
                                         totalmentions += str(temp) + ' '
                                         if userFollows[j][3]:
                                             allmentions += temp.mention + ' '
-                                    await bot.send_message(discord.Object(id=i), allmentions + msg)
+                                    try:
+                                        await bot.send_message(discord.Object(id=i), allmentions + msg)
+                                    except:
+                                        pass
                                     allmentions = ''
                                 else:
-                                    await bot.send_message(discord.User(id=i), msg)
+                                    try:
+                                        await bot.send_message(discord.User(id=i), msg)
+                                    except:
+                                        pass
                             hits += 1
-                            await bot.send_message(discord.Object(id=config["log_location"]), 'Users: %s \n%s' % (totalmentions, msg))
+                            try:
+                                await bot.send_message(discord.Object(id=config["log_location"]), 'Users: %s \n%s' % (totalmentions, msg))
+                            except:
+                                pass
                     if count % 2 == 0:
                         await asyncio.sleep(1)
                 run = open('current_run.txt', 'w')
