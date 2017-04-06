@@ -1,3 +1,5 @@
+**Outdated. Need to rework.**
+
 # Reddit Notifier Discord Bot
 
 A discord bot that notifies users when a thread with certain keywords is posted in a subreddit they are following. Each user gets an empty list where they can add subreddits to follow and specify what keywords to look for in each subreddit.
